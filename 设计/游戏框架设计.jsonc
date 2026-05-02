@@ -5,6 +5,120 @@
     "panY": 0,
     "zoom": 1
   },
-  "nodes": [],
-  "connections": []
+  "nodes": [
+    // 左侧：已落地系统
+    {
+      "id": "n0",
+      "type": "markdown",
+      "x": 100,
+      "y": 80,
+      "width": 320,
+      "height": 60,
+      "content": "## 已落地系统 ✅"
+    },
+    {
+      "id": "n1",
+      "type": "markdown",
+      "x": 100,
+      "y": 180,
+      "width": 320,
+      "height": 100,
+      "content": "**通用移动组件**\n\n- `通用/角色/移动.gd`\n- 八向移动、平滑转向\n- 玩家写输入 / AI 写输入向量"
+    },
+    {
+      "id": "n2",
+      "type": "markdown",
+      "x": 100,
+      "y": 320,
+      "width": 320,
+      "height": 120,
+      "content": "**通用属性 + JSONC 配置**\n\n- `通用/角色/属性.gd`\n- JSONC 数据表 `设计/数据/角色属性.jsonc`\n- `公共/jsonc工具.gd` 通用解析器\n- 按角色模板加载初始属性"
+    },
+    {
+      "id": "n3",
+      "type": "markdown",
+      "x": 100,
+      "y": 480,
+      "width": 320,
+      "height": 120,
+      "content": "**血条 + 受击 + 名称标签**\n\n- `通用/角色/血条.gd` 动态纹理\n- `通用/角色/受击.gd` Area3D 碰撞伤害\n- `通用/角色/名称标签.gd` 世界空间锁定\n- CPUParticles3D 受击粒子"
+    },
+    {
+      "id": "n4",
+      "type": "markdown",
+      "x": 100,
+      "y": 640,
+      "width": 320,
+      "height": 80,
+      "content": "**测试场景**\n\n- `测试场景/移动测试.tscn`\n- 主角 + 多个普通敌人"
+    },
+    // 右侧：待开发系统
+    {
+      "id": "n5",
+      "type": "markdown",
+      "x": 560,
+      "y": 80,
+      "width": 320,
+      "height": 60,
+      "content": "## 待开发系统 📋"
+    },
+    {
+      "id": "n6",
+      "type": "markdown",
+      "x": 560,
+      "y": 180,
+      "width": 320,
+      "height": 100,
+      "content": "**角色美术**\n\n- 虫子 + 道袍风格\n- 原型：蜈蚣道人 / 螳螂虾 / 水熊虫 / 萤火虫"
+    },
+    {
+      "id": "n7",
+      "type": "markdown",
+      "x": 560,
+      "y": 320,
+      "width": 320,
+      "height": 100,
+      "content": "**AI 行为状态机**\n\n- 当前：随机游走\n- 目标：索敌 / 追击 / 攻击 / 逃跑"
+    },
+    {
+      "id": "n8",
+      "type": "markdown",
+      "x": 560,
+      "y": 460,
+      "width": 320,
+      "height": 100,
+      "content": "**完整战斗系统**\n\n- 技能 / 法宝 / 境界压制\n- 死亡 / 掉落 / 吸收"
+    },
+    {
+      "id": "n9",
+      "type": "markdown",
+      "x": 560,
+      "y": 600,
+      "width": 320,
+      "height": 100,
+      "content": "**世界生成**\n\n- 随机地图 / 生态分布\n- 灵气浓度 / 危险区域"
+    },
+    {
+      "id": "n10",
+      "type": "markdown",
+      "x": 560,
+      "y": 740,
+      "width": 320,
+      "height": 100,
+      "content": "**传承 + 天道观察**\n\n- 死亡后世界残留传承\n- 多局元游戏视角"
+    }
+  ],
+  "connections": [
+    // 已落地系统内部依赖
+    { "id": "c0", "from": "n1", "to": "n2", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c1", "from": "n2", "to": "n3", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c2", "from": "n3", "to": "n4", "fromSide": "bottom", "toSide": "top" },
+    // 演进方向
+    { "id": "c3", "from": "n0", "to": "n5", "fromSide": "right", "toSide": "left" },
+    // 待开发依赖
+    { "id": "c4", "from": "n6", "to": "n7", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c5", "from": "n7", "to": "n8", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c6", "from": "n8", "to": "n9", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c7", "from": "n9", "to": "n10", "fromSide": "bottom", "toSide": "top" }
+  ]
 }

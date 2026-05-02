@@ -11,3 +11,6 @@ script = ExtResource("2_diren")
 
 [node name="网格" parent="." index="0"]
 material_override = SubResource("StandardMaterial3D_diren")
+
+[node name="血条" parent="." index="5"]
+填充色 = Color(0.85, 0.15, 0.15, 1)

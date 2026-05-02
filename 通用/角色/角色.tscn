@@ -1,12 +1,25 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://通用/角色/移动.gd" id="1_yidong"]
+[ext_resource type="Script" path="res://通用/角色/属性.gd" id="2_shuxing"]
+[ext_resource type="Script" path="res://通用/角色/受击.gd" id="3_shouji"]
+[ext_resource type="Script" path="res://通用/角色/血条.gd" id="4_xuetiao"]
+[ext_resource type="Script" path="res://通用/角色/名称标签.gd" id="5_mingcheng"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_jiaose"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_jiaose"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lizi"]
+vertex_color_use_as_albedo = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_lizi"]
+material = SubResource("StandardMaterial3D_lizi")
+size = Vector3(0.2, 0.2, 0.2)
+
 [node name="角色" type="CharacterBody3D"]
+collision_layer = 1
+collision_mask = 3
 
 [node name="网格" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_jiaose")
@@ -16,3 +29,42 @@ shape = SubResource("BoxShape3D_jiaose")
 
 [node name="移动" type="Node" parent="."]
 script = ExtResource("1_yidong")
+
+[node name="属性" type="Node" parent="."]
+script = ExtResource("2_shuxing")
+
+[node name="受击" type="Area3D" parent="."]
+collision_mask = 1
+script = ExtResource("3_shouji")
+
+[node name="受击形状" type="CollisionShape3D" parent="受击"]
+shape = SubResource("BoxShape3D_jiaose")
+
+[node name="血条" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+pixel_size = 0.015
+script = ExtResource("4_xuetiao")
+
+[node name="名称标签" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+billboard = 1
+font_size = 128
+horizontal_alignment = 2
+script = ExtResource("5_mingcheng")
+
+[node name="受击粒子" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+emitting = false
+one_shot = true
+explosiveness = 1.0
+amount = 40
+lifetime = 1.0
+local_coords = false
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 1.0
+initial_velocity_max = 3.0
+scale_amount_min = 0.5
+scale_amount_max = 1.5
+color = Color(1, 0, 0, 1)
+mesh = SubResource("BoxMesh_lizi")
