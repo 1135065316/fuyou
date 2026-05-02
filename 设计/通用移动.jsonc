@@ -1,0 +1,131 @@
+{
+  "editorType": "whiteboard",
+  "canvas": { "panX": 0, "panY": 0, "zoom": 1 },
+
+  // 蜉蝣录 / 通用移动模块
+  // 设计目标：玩家、敌人共用同一套；差异只在「谁来写输入向量」
+  // 不在本模块管：瞄准朝向、翻滚、击退、状态机 —— 那些放各自上层
+  "nodes": [
+    // ── 标题
+    {
+      "id": "n0",
+      "type": "markdown",
+      "x": 100,
+      "y": 80,
+      "width": 1700,
+      "height": 100,
+      "content": "# 通用移动 · 八向（最小核）\n\n约定：模块只负责把一个 `输入向量(Vector2, 长度≤1)` 变成实际位移。\n\n谁来写输入向量都行：玩家走 `Input.get_vector(...)`，敌人走 AI/状态机。"
+    },
+
+    // ── 第一行：核心数据流
+    {
+      "id": "n1",
+      "type": "markdown",
+      "x": 100,
+      "y": 220,
+      "width": 360,
+      "height": 240,
+      "content": "## 1. 输入向量\n\n模块持有一个公开属性：\n```gdscript\n@export var 输入向量: Vector2 = Vector2.ZERO\n```\n约束：长度 ≤ 1（来源端自己保证）。\n- 玩家：每帧 `Input.get_vector(\"左\",\"右\",\"上\",\"下\")` 写入\n- 敌人：状态机 `_physics_process` 里写入"
+    },
+    {
+      "id": "n2",
+      "type": "markdown",
+      "x": 520,
+      "y": 220,
+      "width": 360,
+      "height": 240,
+      "content": "## 2. 转 3D 方向\n\n```gdscript\nvar 方向 := Vector3(输入向量.x, 0, 输入向量.y)\n```\n俯视角：xz 平面移动，y 留给重力。\n输入为 0 时方向为 0，自动进入减速。"
+    },
+    {
+      "id": "n3",
+      "type": "markdown",
+      "x": 940,
+      "y": 220,
+      "width": 360,
+      "height": 240,
+      "content": "## 3. 目标速度\n\n```gdscript\nvar 目标 := 方向 * 基础移速 * 移速倍率\n```\n- `基础移速`：导出参数\n- `移速倍率`：buff 字典累乘（迟缓 / 疾风 / 神识压迫）\n- 如不需要 buff，倍率默认 1.0"
+    },
+    {
+      "id": "n4",
+      "type": "markdown",
+      "x": 1360,
+      "y": 220,
+      "width": 360,
+      "height": 240,
+      "content": "## 4. 加减速\n\n```gdscript\nvar a := 启动加速度 if 目标.length() > 0 else 停止减速度\nvelocity = velocity.move_toward(目标, a * delta)\n```\n挺进地牢式：响应近乎瞬时，但保留极小过渡避免速度突变。"
+    },
+    {
+      "id": "n5",
+      "type": "markdown",
+      "x": 1780,
+      "y": 220,
+      "width": 360,
+      "height": 240,
+      "content": "## 5. 位移\n\n```gdscript\nmove_and_slide()\n```\n- 节点：`CharacterBody3D`\n- Godot 4.x：`move_and_slide()` 无参，依赖 `velocity`\n- `up_direction = Vector3.UP`"
+    },
+
+    // ── 第二行：朝向 / 参数 / 实现要点
+    {
+      "id": "n6",
+      "type": "markdown",
+      "x": 100,
+      "y": 540,
+      "width": 700,
+      "height": 240,
+      "content": "## 6. 朝向（最简）\n\n身体朝向 = 当前移动方向，平滑过渡：\n```gdscript\nif velocity.length() > 0.05:\n    var 目标朝向 := atan2(velocity.x, velocity.z)\n    rotation.y = lerp_angle(rotation.y, 目标朝向, 朝向插值速率 * delta)\n```\n- 静止时保持上一帧朝向\n- 玩家若需独立瞄准朝向（持枪），由**上层**另写一段 `look_at`，**不污染本模块**"
+    },
+    {
+      "id": "n7",
+      "type": "markdown",
+      "x": 840,
+      "y": 540,
+      "width": 480,
+      "height": 240,
+      "content": "## 7. 参数（默认值）\n\n| 参数 | 默认 |\n|---|---|\n| `基础移速` | `6.0 m/s` |\n| `启动加速度` | `90 m/s²` |\n| `停止减速度` | `70 m/s²` |\n| `朝向插值速率` | `12 / s` |\n\n所有参数 `@export`，每种角色用资源覆写。"
+    },
+    {
+      "id": "n8",
+      "type": "markdown",
+      "x": 1360,
+      "y": 540,
+      "width": 780,
+      "height": 240,
+      "content": "## 8. Godot 4.6 实现要点\n\n- 挂在 `CharacterBody3D` 的子节点（或直接写在角色脚本里）\n- 全部逻辑放 `_physics_process(delta)`\n- 4.x API：`Input.get_vector(neg_x, pos_x, neg_y, pos_y, deadzone=0.2)`、`move_and_slide()` 无参 + `velocity` 属性、`@export` / `@onready` 注解\n- 暂停响应：`process_mode = PROCESS_MODE_PAUSABLE`"
+    },
+
+    // ── 第三行：玩家桥 / 敌人桥
+    {
+      "id": "n9",
+      "type": "markdown",
+      "x": 100,
+      "y": 860,
+      "width": 1020,
+      "height": 240,
+      "content": "## 9. 玩家如何接\n\n玩家脚本只做一件事：每个物理帧把 `Input.get_vector` 写进移动模块。\n```gdscript\nfunc _physics_process(_delta: float) -> void:\n    移动.输入向量 = Input.get_vector(\"左\",\"右\",\"上\",\"下\")\n```\n翻滚、瞄准、攻击全在玩家上层处理；翻滚期间想覆盖位移，可临时把 `输入向量 = Vector2.ZERO` 并由上层直接写 `velocity`。"
+    },
+    {
+      "id": "n10",
+      "type": "markdown",
+      "x": 1140,
+      "y": 860,
+      "width": 1000,
+      "height": 240,
+      "content": "## 10. 敌人如何接\n\n敌人 AI / 状态机的输出端最终也只写 `输入向量`：\n```gdscript\n# 巡逻态：\n移动.输入向量 = (巡逻点 - global_position).normalized().to_2d_xz()\n# 静止/被眩晕：\n移动.输入向量 = Vector2.ZERO\n```\n好处：移动表现与玩家一致，调参一处生效；敌人状态机不必关心物理细节。"
+    }
+  ],
+
+  // 主流横向贯穿；朝向、参数、实现各自向位移节点回灌；玩家/敌人桥指向输入向量
+  "connections": [
+    { "id": "c0", "from": "n1", "to": "n2", "fromSide": "right", "toSide": "left" },
+    { "id": "c1", "from": "n2", "to": "n3", "fromSide": "right", "toSide": "left" },
+    { "id": "c2", "from": "n3", "to": "n4", "fromSide": "right", "toSide": "left" },
+    { "id": "c3", "from": "n4", "to": "n5", "fromSide": "right", "toSide": "left" },
+
+    { "id": "c4", "from": "n6", "to": "n5", "fromSide": "top", "toSide": "bottom" },
+    { "id": "c5", "from": "n7", "to": "n4", "fromSide": "top", "toSide": "bottom" },
+    { "id": "c6", "from": "n8", "to": "n5", "fromSide": "top", "toSide": "bottom" },
+
+    { "id": "c7", "from": "n9", "to": "n1", "fromSide": "top", "toSide": "bottom" },
+    { "id": "c8", "from": "n10", "to": "n1", "fromSide": "top", "toSide": "bottom" }
+  ]
+}

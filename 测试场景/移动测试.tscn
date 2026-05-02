@@ -1,0 +1,55 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="PackedScene" path="res://主角/主角.tscn" id="1_zhujiao"]
+[ext_resource type="PackedScene" path="res://敌人/普通敌人.tscn" id="2_diren"]
+[ext_resource type="Script" path="res://测试场景/相机跟随.gd" id="3_xiangji"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_diban"]
+size = Vector2(30, 30)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_diban"]
+albedo_color = Color(0.6, 0.6, 0.6, 1)
+roughness = 0.9
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_tian"]
+
+[sub_resource type="Sky" id="Sky_tian"]
+sky_material = SubResource("ProceduralSkyMaterial_tian")
+
+[sub_resource type="Environment" id="Environment_huanjing"]
+background_mode = 2
+sky = SubResource("Sky_tian")
+ambient_light_source = 3
+ambient_light_color = Color(0.7, 0.7, 0.8, 1)
+ambient_light_energy = 0.4
+
+[node name="移动测试" type="Node3D"]
+
+[node name="环境" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_huanjing")
+
+[node name="平行光" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5736, 0.8192, 0, -0.8192, 0.5736, 0, 6, 0)
+
+[node name="地板" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_diban")
+material_override = SubResource("StandardMaterial3D_diban")
+
+[node name="主角" parent="." instance=ExtResource("1_zhujiao")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="相机" type="Camera3D" parent="."]
+current = true
+script = ExtResource("3_xiangji")
+
+[node name="敌人A" parent="." instance=ExtResource("2_diren")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, -4)
+
+[node name="敌人B" parent="." instance=ExtResource("2_diren")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, -4)
+
+[node name="敌人C" parent="." instance=ExtResource("2_diren")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.5, 4)
+
+[node name="敌人D" parent="." instance=ExtResource("2_diren")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, 4)

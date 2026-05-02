@@ -1,0 +1,75 @@
+# 蜉蝣录
+
+俯视角修仙 Roguelike 3D 游戏，2026-04-26 初始化，目前处于设计早期。
+
+## 设计基调
+- **核心比喻**：雨世界生态残酷 × 修仙境界攀升 × 蜉蝣朝生暮死
+- **主角**：意外穿越的凡人，**不是天选之子**；多数时候只是修真者眼中的背景
+- **核心循环**：观察 → 借势 → 生灭；无任务系统、无主线脚本，只有"因果"
+- **三层循环**：单局生存（1–3h） / 境界攀升（多局） / 天道观察（元游戏）
+- **死亡**：真死亡，无存档无复活；少量"传承"留在世界里
+- **角色美术风格**：虫子 + 道袍。已设定原型——蜈蚣道人 / 螳螂虾 / 水熊虫 / 萤火虫
+- **操作灵感**：俯视角、八向移动，参考《挺进地牢》
+
+详见 `设计/原始想法.md`、`设计/设计.md`。
+
+## 技术栈
+| 项 | 选择 |
+|----|------|
+| 引擎 | **Godot 4.6.stable**（Forward Plus 渲染） |
+| 物理 | Jolt Physics（3D） |
+| 渲染后端 | D3D12（Windows） |
+| 脚本 | GDScript（默认） |
+| 视角 | 45° 俯视，可缩放/旋转 |
+
+## 目录约定
+```
+project.godot        Godot 入口
+icon.svg             项目图标
+设计/                所有设计稿存放处
+  原始想法.md         早期脑暴（核心世界观）
+  设计.md             主视觉与角色原型
+  游戏框架设计.jsonc  顶层框架白板
+  通用移动.jsonc      移动模块设计
+  参考/ 工具/ 数据/   占位，按需填充
+测试场景/             用于验证链路的最小场景
+```
+
+新代码默认放在按模块命名的中文目录下（如 `角色/`、`战斗/`、`世界/`），公共脚本放 `公共/`。
+
+## 设计文件约定
+- `.jsonc` 全部遵循 **`jsonc-editor`** skill 规范，写之前先唤起该 skill
+- 两类格式：`editorType: "whiteboard"`（节点图） / `editorType: "godot"`（数据表）
+- whiteboard：节点 ID `n0/n1...`，连线 ID `c0/c1...`，markdown 节点默认 320×220
+- godot 表：id 从 1001 起递增，列名英文 snake_case
+- 设计文档统一用中文表述
+
+## 编码约定
+- **中文优先**：场景名、节点名、脚本类名、自定义变量/函数名都用中文（小骑士模式默认）
+- **组合优于继承**：能用子节点 / 组件脚本拼出来的能力，就别拉一条父类继承链。例：`通用移动.gd` 挂在 `CharacterBody3D` 下，玩家/敌人/NPC 共用同一份；差异通过参数和"谁来写输入向量"区分，而不是派生 `玩家` / `敌人` 类
+- 缩进：以 `.editorconfig` 为准
+- 不要写赘述性注释，必要时只解释 *为什么*
+- 改动只动需求所在范围，旁路代码不顺手"美化"
+
+## Godot MCP 工作流
+项目已接入 `mcp__godot__*` 工具，可直接：
+- `get_godot_version` / `get_project_info` / `list_projects`
+- `create_scene` / `add_node` / `load_sprite` / `save_scene`
+- `run_project` 后用 `get_debug_output` 取控制台日志，`stop_project` 收尾
+- HelloWorld 验证链路：`测试场景/HelloWorld.tscn`
+- **注意**：`run_project` 是阻塞式的，会直到 Godot 退出才返回。如果场景里调了 `get_tree().quit()`，`get_debug_output` 会报 "No active Godot process"。验证用脚本应保持运行，由 `stop_project` 收尾。
+
+## 本地参考仓库
+为了避免落到 Godot 3.x 的写法，下面三个仓库已克隆在本机，可直接 `Read` / `Grep`：
+- `D:\dev\projects\game-dev\godot` —— 引擎源码
+- `D:\dev\projects\game-dev\godot-docs` —— 官方文档源码（rst）
+- `D:\dev\projects\game-dev\godot-mcp` —— 当前使用的 Godot MCP 实现，排查 mcp 行为时翻这里
+
+## 可用 Skill
+- `/godot-classref` —— 权威 Godot 4.x 类参考（位于 `~/.claude/skills/godot-classref/`），写脚本前**优先**用它确认方法签名、属性默认值、虚函数、信号；遇到 `KinematicBody2D` / 旧 `move_and_slide(velocity)` / `yield` / `export var` 等 3.x 残留时尤其要查
+- `/jsonc-editor` —— 设计文件统一走它的 whiteboard / godot table 规范
+
+## 当前进度
+- 项目骨架已 commit（`7eced11`）
+- 设计稿：原始想法、设计、游戏框架白板、通用移动雏形已就位
+- MCP 控制台读取链路通过 `测试场景/HelloWorld.tscn` 已验证可用

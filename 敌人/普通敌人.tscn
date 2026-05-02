@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://通用/角色/角色.tscn" id="1_jiaose"]
+[ext_resource type="Script" path="res://敌人/普通敌人.gd" id="2_diren"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_diren"]
+albedo_color = Color(0.886, 0.357, 0.357, 1)
+
+[node name="普通敌人" instance=ExtResource("1_jiaose")]
+script = ExtResource("2_diren")
+
+[node name="网格" parent="." index="0"]
+material_override = SubResource("StandardMaterial3D_diren")

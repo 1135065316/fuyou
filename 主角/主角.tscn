@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://通用/角色/角色.tscn" id="1_jiaose"]
+[ext_resource type="Script" path="res://主角/主角.gd" id="2_zhujiao"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_zhujiao"]
+albedo_color = Color(0.357, 0.557, 0.937, 1)
+
+[node name="主角" instance=ExtResource("1_jiaose")]
+script = ExtResource("2_zhujiao")
+
+[node name="网格" parent="." index="0"]
+material_override = SubResource("StandardMaterial3D_zhujiao")
