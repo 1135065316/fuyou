@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[sub_resource type="BoxMesh" id="BoxMesh_diban"]
+size = Vector3(1, 0.05, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_diban"]
+albedo_color = Color(0.5, 0.5, 0.5, 1)
+
+[node name="地板" type="Node3D"]
+
+[node name="网格" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_diban")
+surface_material_override/0 = SubResource("StandardMaterial3D_diban")

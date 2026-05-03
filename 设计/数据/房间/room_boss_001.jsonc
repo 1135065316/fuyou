@@ -1,0 +1,31 @@
+{
+  "editorType": "room",
+  "id": "room_boss_001",
+  "room_name": "Boss房",
+  "room_type": "boss",
+  "size_x": 10,
+  "size_z": 10,
+  "floor_grid": [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  ],
+  "decorations": [],
+  "lighting": {
+    "ambient_color": "#201020",
+    "ambient_energy": 0.15,
+    "directional_color": "#ff8844",
+    "directional_energy": 0.9,
+    "directional_rotation": "60,10,0"
+  },
+  "asset_refs": {
+    "floor_01": "res://设计/资产/房间/地板/地板1.png"
+  }
+}

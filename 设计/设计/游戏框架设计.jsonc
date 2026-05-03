@@ -44,13 +44,22 @@
       "content": "**血条 + 受击 + 名称标签**\n\n- `通用/角色/血条.gd` 动态纹理\n- `通用/角色/受击.gd` Area3D 碰撞伤害\n- `通用/角色/名称标签.gd` 世界空间锁定\n- CPUParticles3D 受击粒子"
     },
     {
-      "id": "n4",
+      "id": "n11",
       "type": "markdown",
       "x": 100,
       "y": 640,
       "width": 320,
-      "height": 80,
-      "content": "**测试场景**\n\n- `测试场景/移动测试.tscn`\n- 主角 + 多个普通敌人"
+      "height": 140,
+      "content": "**房间系统**\n\n- `系统/房间管理器.gd` JSONC 加载\n- `系统/房间生成器.gd` 随机 DFS 拓扑\n- `系统/走廊生成器.gd` L 型走廊\n- Web 编辑器（Vue3 + Three.js）\n- `房间/门.tscn` 清怪开启机制"
+    },
+    {
+      "id": "n4",
+      "type": "markdown",
+      "x": 100,
+      "y": 820,
+      "width": 320,
+      "height": 100,
+      "content": "**测试场景**\n\n- `测试场景/移动测试.tscn` 主角 + 敌人\n- `测试场景/房间系统测试.tscn` 楼层可视化\n- `测试场景/房间预览测试.tscn` 模板浏览"
     },
     // 右侧：待开发系统
     {
@@ -109,13 +118,11 @@
     }
   ],
   "connections": [
-    // 已落地系统内部依赖
     { "id": "c0", "from": "n1", "to": "n2", "fromSide": "bottom", "toSide": "top" },
     { "id": "c1", "from": "n2", "to": "n3", "fromSide": "bottom", "toSide": "top" },
-    { "id": "c2", "from": "n3", "to": "n4", "fromSide": "bottom", "toSide": "top" },
-    // 演进方向
+    { "id": "c2", "from": "n3", "to": "n11", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c8", "from": "n11", "to": "n4", "fromSide": "bottom", "toSide": "top" },
     { "id": "c3", "from": "n0", "to": "n5", "fromSide": "right", "toSide": "left" },
-    // 待开发依赖
     { "id": "c4", "from": "n6", "to": "n7", "fromSide": "bottom", "toSide": "top" },
     { "id": "c5", "from": "n7", "to": "n8", "fromSide": "bottom", "toSide": "top" },
     { "id": "c6", "from": "n8", "to": "n9", "fromSide": "bottom", "toSide": "top" },

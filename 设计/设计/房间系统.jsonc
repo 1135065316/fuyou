@@ -1,0 +1,104 @@
+{
+  "editorType": "whiteboard",
+  "canvas": { "panX": 0, "panY": 0, "zoom": 1 },
+
+  // 蜉蝣录 / 房间系统
+  // 涵盖：房间模板格式、运行时加载、楼层生成算法、Web 编辑器、门系统
+  "nodes": [
+    {
+      "id": "n0",
+      "type": "markdown",
+      "x": 100,
+      "y": 80,
+      "width": 900,
+      "height": 80,
+      "content": "# 房间系统\n\nRoguelike 楼层生成 + 3D 房间模板加载 + Web 房间编辑器"
+    },
+
+    {
+      "id": "n1",
+      "type": "markdown",
+      "x": 100,
+      "y": 220,
+      "width": 400,
+      "height": 200,
+      "content": "## 1. 房间模板 JSONC\n\n`设计/数据/房间/{room_id}.jsonc`\n- `floor_grid[y][x]`：0=空洞，1+=asset_refs 索引\n- `decorations`：自由摆放（asset_id + position + rotation + scale）\n- `doors`：方向 + 格子坐标 + 入口/出口标记\n- `spawn_points`：玩家/敌人/宝箱生成位置\n- `asset_refs`：资产路径映射"
+    },
+    {
+      "id": "n2",
+      "type": "markdown",
+      "x": 560,
+      "y": 220,
+      "width": 400,
+      "height": 200,
+      "content": "## 2. 房间池 JSONC\n\n`设计/数据/房间池.jsonc`\n- `editorType: \"godot\"` 表格格式\n- 列：id, pool_id, room_template_id, room_type, weight, min_floor, max_floor, min_doors, max_doors, note\n- 运行时按层数和门数约束筛选候选\n- 按权重加权随机匹配模板"
+    },
+
+    {
+      "id": "n3",
+      "type": "markdown",
+      "x": 100,
+      "y": 480,
+      "width": 400,
+      "height": 200,
+      "content": "## 3. 运行时加载\n\n`系统/房间管理器.gd`\n1. `公共/jsonc工具.gd` 解析 JSONC（去注释）\n2. floor_grid → 实例化 `房间/地板.tscn`，贴纹理\n3. decorations → 按 asset_refs 路径 `load()` 场景\n4. doors → 实例化 `房间/门.tscn`，标记方向/入口/出口\n5. spawn_points → 创建 Marker3D\n6. 设置光照（WorldEnvironment + DirectionalLight3D）"
+    },
+    {
+      "id": "n4",
+      "type": "markdown",
+      "x": 560,
+      "y": 480,
+      "width": 400,
+      "height": 200,
+      "content": "## 4. 门系统\n\n`房间/门.tscn`\n- 初始关闭：碰撞体启用，红色显示\n- 清怪检测：遍历当前房间敌人 group\n- 全部死亡 → 门开启（碰撞体禁用，绿色半透明）\n- 玩家穿过开启的门 → 发出信号，房间管理器加载目标房间"
+    },
+
+    {
+      "id": "n5",
+      "type": "markdown",
+      "x": 100,
+      "y": 740,
+      "width": 400,
+      "height": 200,
+      "content": "## 5. 拓扑生成\n\n`系统/房间生成器.gd`\n- 随机 DFS 在 2D 网格上铺房间\n- 起点 (0,0)，标记为 start\n- 每次随机选\"可扩展节点\"，随机方向创建新房间\n- 建立双向门连接（north↔south, east↔west）\n- 目标：9 层，每层 8~15 个房间，图连通无孤立"
+    },
+    {
+      "id": "n6",
+      "type": "markdown",
+      "x": 560,
+      "y": 740,
+      "width": 400,
+      "height": 200,
+      "content": "## 6. 类型分配 + 模板匹配\n\n- 离起点最远的节点 = boss 房\n- 约 10% 节点 = treasure 房\n- 其余 = monster 房\n- 从房间池按层数/门数筛选候选池\n- 加权轮盘随机选择模板（weight 累加）\n- `_匹配门连接()` 验证双向连通"
+    },
+
+    {
+      "id": "n7",
+      "type": "markdown",
+      "x": 100,
+      "y": 1000,
+      "width": 400,
+      "height": 200,
+      "content": "## 7. Web 房间编辑器\n\n`dev-tools/src/views/game/roomEditor/`\n- Vue3 + Three.js\n- 轴面放置（x/y/z 平面点击放置装饰物）\n- 地板纹理自由放置（吸附网格，保持原始尺寸）\n- 支持放置/擦除子模式\n- 保存为 `editorType: \"room\"` JSONC，Godot 可直接加载"
+    },
+    {
+      "id": "n8",
+      "type": "markdown",
+      "x": 560,
+      "y": 1000,
+      "width": 400,
+      "height": 200,
+      "content": "## 8. 测试验证\n\n- `测试场景/房间系统测试.tscn`：加载 room_001 + 验证 9 层生成\n- `测试场景/房间预览测试.tscn`：浏览房间池模板，点击切换预览\n- Web 编辑器验证：绘制地板、放置装饰物、保存/加载一致性\n- 生成验证：100 次运行，每层 8~15 房、恰好 1 Boss、图连通"
+    }
+  ],
+
+  "connections": [
+    { "id": "c0", "from": "n1", "to": "n2", "fromSide": "right", "toSide": "left" },
+    { "id": "c1", "from": "n1", "to": "n3", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c2", "from": "n2", "to": "n5", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c3", "from": "n3", "to": "n4", "fromSide": "right", "toSide": "left" },
+    { "id": "c4", "from": "n5", "to": "n6", "fromSide": "right", "toSide": "left" },
+    { "id": "c5", "from": "n3", "to": "n7", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c6", "from": "n5", "to": "n8", "fromSide": "bottom", "toSide": "top" }
+  ]
+}

@@ -1,0 +1,57 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://测试场景/房间系统测试.gd" id="1_ceshi"]
+[ext_resource type="Script" path="res://系统/房间管理器.gd" id="2_guanli"]
+[ext_resource type="PackedScene" path="res://角色/主角/主角.tscn" id="3_zhujiao"]
+[ext_resource type="Script" path="res://测试场景/相机跟随.gd" id="4_xiangji"]
+
+[sub_resource type="Environment" id="Environment_ceshi"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_dixin"]
+size = Vector3(200, 1, 200)
+
+[node name="房间系统测试" type="Node3D"]
+script = ExtResource("1_ceshi")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="面板" type="VBoxContainer" parent="UI"]
+anchors_preset = 1
+anchor_left = 1.0
+offset_left = -200.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 120.0
+grow_horizontal = 0
+theme_override_constants/separation = 8
+
+[node name="层选择" type="OptionButton" parent="UI/面板"]
+layout_mode = 2
+
+[node name="视角按钮" type="Button" parent="UI/面板"]
+layout_mode = 2
+text = "主角视角"
+
+[node name="房间管理器" type="Node3D" parent="."]
+script = ExtResource("2_guanli")
+
+[node name="主角" parent="." instance=ExtResource("3_zhujiao")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="主角相机" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 15, 12)
+current = true
+script = ExtResource("4_xiangji")
+
+[node name="上帝相机" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 80, 60)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ceshi")
+
+[node name="地基" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_dixin")
+
+[connection signal="item_selected" from="UI/面板/层选择" to="." method="_on_层选择_item_selected"]
+[connection signal="pressed" from="UI/面板/视角按钮" to="." method="_on_视角按钮按下"]

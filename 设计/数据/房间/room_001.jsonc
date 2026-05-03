@@ -1,0 +1,29 @@
+{
+  "editorType": "room",
+  "id": "room_001",
+  "room_name": "小型怪物房",
+  "room_type": "monster",
+  "size_x": 8,
+  "size_z": 8,
+  "floor_grid": [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 0, 0, 0, 0, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1]
+  ],
+  "decorations": [],
+  "lighting": {
+    "ambient_color": "#303040",
+    "ambient_energy": 0.2,
+    "directional_color": "#fff0d0",
+    "directional_energy": 0.6,
+    "directional_rotation": "50,20,0"
+  },
+  "asset_refs": {
+    "floor_01": "res://设计/资产/房间/地板/地板1.png"
+  }
+}

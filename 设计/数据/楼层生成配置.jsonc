@@ -1,0 +1,15 @@
+{
+  "editorType": "room",
+  "id": "floor_gen_config",
+  "room_name": "楼层生成配置",
+  "total_floors": 9,
+  "rooms_per_floor": { "min": 8, "max": 15 },
+  "floor_rules": [
+    { "floor": 1, "min_rooms": 8, "max_rooms": 10, "guaranteed_types": ["start", "monster"] },
+    { "floor": 3, "min_rooms": 10, "max_rooms": 12, "guaranteed_types": ["boss"] },
+    { "floor": 6, "min_rooms": 11, "max_rooms": 13, "guaranteed_types": ["boss"] },
+    { "floor": 9, "min_rooms": 12, "max_rooms": 15, "guaranteed_types": ["boss"] }
+  ],
+  "corridor_length": { "min": 2, "max": 5 },
+  "corridor_width": 2
+}

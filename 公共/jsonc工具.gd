@@ -38,12 +38,42 @@ static func 查找行(数据: Dictionary, 列名: String, 值: Variant) -> Dicti
 
 
 static func _去掉注释(文本: String) -> String:
-  var 块注释正则 := RegEx.new()
-  块注释正则.compile("/\\*[\\s\\S]*?\\*/")
-  文本 = 块注释正则.sub(文本, "", true)
-
-  var 行注释正则 := RegEx.new()
-  行注释正则.compile("//[^\n]*")
-  文本 = 行注释正则.sub(文本, "", true)
-
-  return 文本
+  var 结果 := ""
+  var 在字符串内 := false
+  var i := 0
+  while i < 文本.length():
+    var 字符 := 文本[i]
+    if not 在字符串内:
+      if 字符 == '"':
+        在字符串内 = true
+        结果 += 字符
+      elif 字符 == "/" and i + 1 < 文本.length():
+        var 下一个 := 文本[i + 1]
+        if 下一个 == "/":
+          while i < 文本.length() and 文本[i] != "\n":
+            i += 1
+          continue
+        elif 下一个 == "*":
+          i += 2
+          while i < 文本.length() - 1:
+            if 文本[i] == "*" and 文本[i + 1] == "/":
+              i += 2
+              break
+            i += 1
+          continue
+        else:
+          结果 += 字符
+      else:
+        结果 += 字符
+    else:
+      if 字符 == "\\" and i + 1 < 文本.length():
+        结果 += 字符
+        i += 1
+        结果 += 文本[i]
+      elif 字符 == '"':
+        在字符串内 = false
+        结果 += 字符
+      else:
+        结果 += 字符
+    i += 1
+  return 结果

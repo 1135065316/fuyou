@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3]
 
-[ext_resource type="PackedScene" path="res://主角/主角.tscn" id="1_zhujiao"]
-[ext_resource type="PackedScene" path="res://敌人/普通敌人.tscn" id="2_diren"]
+[ext_resource type="PackedScene" path="res://角色/主角/主角.tscn" id="1_zhujiao"]
+[ext_resource type="PackedScene" path="res://角色/敌人/普通敌人.tscn" id="2_diren"]
 [ext_resource type="Script" path="res://测试场景/相机跟随.gd" id="3_xiangji"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_diban"]

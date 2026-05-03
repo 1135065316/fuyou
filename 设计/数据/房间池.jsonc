@@ -1,0 +1,31 @@
+{
+  "editorType": "godot",
+  "columns": [
+    { "name": "id", "type": "int" },
+    { "name": "pool_id", "type": "String" },
+    { "name": "room_template_id", "type": "String" },
+    { "name": "room_type", "type": "String" },
+    { "name": "weight", "type": "int" },
+    { "name": "min_floor", "type": "int" },
+    { "name": "max_floor", "type": "int" },
+    { "name": "min_doors", "type": "int" },
+    { "name": "max_doors", "type": "int" },
+    { "name": "note", "type": "String" }
+  ],
+  "table": [
+    [1001, "pool_start", "room_start_001", "start", 100, 1, 9, 1, 2, "起始房间（1-2门）"],
+    [1002, "pool_start_wide", "room_start_001", "start", 100, 1, 9, 3, 4, "起始房间（3-4门）"],
+    [1003, "pool_small_monster", "room_001", "monster", 80, 1, 3, 2, 4, "小型怪物房（2-4门）"],
+    [1004, "pool_med_monster", "room_001", "monster", 70, 3, 6, 2, 4, "中型怪物房（2-4门）"],
+    [1005, "pool_large_monster", "room_001", "monster", 60, 5, 9, 2, 4, "大型怪物房（2-4门）"],
+    [1006, "pool_monster_deadend", "room_001", "monster", 50, 1, 9, 1, 1, "死胡同怪物房（1门）"],
+    [1007, "pool_treasure", "room_start_001", "treasure", 30, 1, 9, 1, 2, "宝箱房（1-2门）"],
+    [1008, "pool_treasure_wide", "room_start_001", "treasure", 20, 1, 9, 3, 4, "宝箱房（3-4门）"],
+    [1009, "pool_boss_1", "room_boss_001", "boss", 100, 1, 2, 1, 2, "第1-2层Boss房"],
+    [1010, "pool_boss_2", "room_boss_001", "boss", 100, 3, 3, 1, 2, "第3层Boss房"],
+    [1011, "pool_boss_3", "room_boss_001", "boss", 100, 4, 5, 1, 2, "第4-5层Boss房"],
+    [1012, "pool_boss_4", "room_boss_001", "boss", 100, 6, 6, 1, 2, "第6层Boss房"],
+    [1013, "pool_boss_5", "room_boss_001", "boss", 100, 7, 8, 1, 2, "第7-8层Boss房"],
+    [1014, "pool_boss_6", "room_boss_001", "boss", 100, 9, 9, 1, 2, "第9层Boss房"]
+  ]
+}

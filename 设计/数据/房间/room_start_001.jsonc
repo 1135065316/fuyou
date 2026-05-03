@@ -1,0 +1,27 @@
+{
+  "editorType": "room",
+  "id": "room_start_001",
+  "room_name": "起始房间",
+  "room_type": "start",
+  "size_x": 6,
+  "size_z": 6,
+  "floor_grid": [
+    [1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1]
+  ],
+  "decorations": [],
+  "lighting": {
+    "ambient_color": "#404050",
+    "ambient_energy": 0.3,
+    "directional_color": "#fff8e7",
+    "directional_energy": 0.8,
+    "directional_rotation": "45,30,0"
+  },
+  "asset_refs": {
+    "floor_01": "res://设计/资产/房间/地板/地板1.png"
+  }
+}
