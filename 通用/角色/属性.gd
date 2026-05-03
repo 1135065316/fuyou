@@ -41,6 +41,7 @@ enum 品级 { 凡品, 良品, 上品, 极品, 天品 }
 @export var 神识: int = 5
 
 var _无敌倒计时: float = 0.0
+var 已死亡: bool = false
 
 const 表路径 := "res://设计/数据/角色属性.jsonc"
 
@@ -120,9 +121,10 @@ func _physics_process(delta: float) -> void:
     _无敌倒计时 -= delta
 
 
-func 受伤(伤害值: int) -> void:
+func 受伤(伤害值: int) -> bool:
   if _无敌倒计时 > 0:
-    return
+    return false
+  var 旧气血 := 气血
   气血 = maxi(0, 气血 - 伤害值)
   _无敌倒计时 = 0.5
   print("[属性] ", get_parent().name, " 受伤 ", 伤害值, " 剩余气血 ", 气血)
@@ -133,8 +135,9 @@ func 受伤(伤害值: int) -> void:
     粒子.emitting = true
 
   受伤信号.emit(伤害值)
-  if 气血 <= 0:
+  if 旧气血 > 0 and 气血 <= 0:
     死亡信号.emit()
+  return true
 
 
 func 是否死亡() -> bool:
@@ -143,6 +146,7 @@ func 是否死亡() -> bool:
 
 func _on_死亡() -> void:
   print("[属性] ", get_parent().name, " 死亡")
+  已死亡 = true
   get_parent().set_physics_process(false)
   await get_tree().create_timer(0.5).timeout
   get_parent().queue_free()

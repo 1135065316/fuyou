@@ -39,8 +39,12 @@ func 生成敌人(房间根节点: Node3D) -> Array[Node3D]:
 func 获取存活敌人数量() -> int:
 	var 存活 = 0
 	for 敌人 in 已生成敌人:
-		if is_instance_valid(敌人) and 敌人.get_parent() != null:
-			存活 += 1
+		if not is_instance_valid(敌人) or 敌人.get_parent() == null:
+			continue
+		var 属性节点 = 敌人.get_node_or_null("属性")
+		if 属性节点 and 属性节点.气血 <= 0:
+			continue
+		存活 += 1
 	return 存活
 
 

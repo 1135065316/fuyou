@@ -11,12 +11,12 @@ var 当前房间: Node3D = null
 var 当前房间数据: Dictionary = {}
 
 
-func 加载房间(模板ID: String, 连通门: Dictionary = {}) -> void:
+func 加载房间(模板ID: String, 连通门: Dictionary = {}, 世界位置: Vector3 = Vector3.ZERO) -> void:
   if 当前房间:
     当前房间.queue_free()
     当前房间 = null
 
-  var 房间根 := _创建房间实例(模板ID, 连通门, self, Vector3.ZERO)
+  var 房间根 := _创建房间实例(模板ID, 连通门, self, 世界位置)
   if 房间根:
     当前房间 = 房间根
     当前房间数据 = 房间根.get_meta("room_data", {})

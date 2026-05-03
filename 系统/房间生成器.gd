@@ -39,7 +39,7 @@ func 生成楼层(层数: int) -> Array[房间图节点]:
   var 随机种子 := randi()
   seed(随机种子)
 
-  var 房间数量 := randi_range(8, 15)
+  var 房间数量 := randi_range(12, 20)
   if 层数 == 3 or 层数 == 6 or 层数 == 9:
     房间数量 = maxi(房间数量, 10)
 

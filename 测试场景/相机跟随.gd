@@ -19,15 +19,19 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	if 主角:
-		var 目标位置 := 主角.global_position + 偏移
-		目标位置.x = clampf(目标位置.x, 限制最小.x, 限制最大.x)
-		目标位置.z = clampf(目标位置.z, 限制最小.z, 限制最大.z)
-		global_position = 目标位置
+	if not 主角 or not is_instance_valid(主角):
+		主角 = get_node_or_null("../主角") as Node3D
+	if not 主角:
+		return
+	var 目标位置 := 主角.global_position + 偏移
+	目标位置.x = clampf(目标位置.x, 限制最小.x, 限制最大.x)
+	目标位置.z = clampf(目标位置.z, 限制最小.z, 限制最大.z)
+	global_position = 目标位置
 
 
 func 设置边界(最小: Vector3, 最大: Vector3) -> void:
-	限制最小 = 最小 + Vector3(0, 偏移.y, 0)
-	限制最大 = 最大 + Vector3(0, 偏移.y, 0)
+	限制最小 = 最小 + 偏移
+	限制最大 = 最大 + 偏移
 	限制最小.y = 偏移.y
 	限制最大.y = 偏移.y
+	print("[相机] 边界更新: 最小=", 限制最小, " 最大=", 限制最大)

@@ -2,7 +2,7 @@ extends Node
 class_name 走廊生成器
 
 const 走廊地板路径 := "res://房间/地板.tscn"
-const 房间间距 := 15.0
+const 房间间距 := 20.0
 
 func 生成所有走廊(图: Array, 父节点: Node3D) -> void:
 	var 地板场景: PackedScene = load(走廊地板路径)
@@ -22,21 +22,42 @@ func 生成所有走廊(图: Array, 父节点: Node3D) -> void:
 
 			var 起点 := Vector3(节点.位置.x * 房间间距, 0, 节点.位置.y * 房间间距)
 			var 终点 := Vector3(相邻节点.位置.x * 房间间距, 0, 相邻节点.位置.y * 房间间距)
-			_生成直线走廊(起点, 终点, 地板场景, 父节点)
+			_生成L形走廊(起点, 终点, 方向, 地板场景, 父节点)
 
 
-func _生成直线走廊(起点: Vector3, 终点: Vector3, 地板场景: PackedScene, 父节点: Node3D) -> void:
-	var 方向 := 终点 - 起点
-	var 长度 := 方向.length()
-	var 单位方向 := 方向.normalized()
-	var 步数 := int(长度)
+func _生成L形走廊(起点: Vector3, 终点: Vector3, 走廊方向: String, 地板场景: PackedScene, 父节点: Node3D) -> void:
+	var 当前x: float = 起点.x
+	var 当前z: float = 起点.z
+	var 目标x: float = 终点.x
+	var 目标z: float = 终点.z
 
-	for i in range(步数 + 1):
-		var 位置 := 起点 + 单位方向 * i
-		var 地板 := 地板场景.instantiate()
-		地板.position = Vector3(round(位置.x) + 0.5, 0, round(位置.z) + 0.5)
-		地板.name = "走廊地板_%d" % i
-		父节点.add_child(地板)
+	match 走廊方向:
+		"north", "south":
+			while abs(当前z - 目标z) > 0.01:
+				var 地板 := 地板场景.instantiate()
+				地板.position = Vector3(floor(当前x) + 0.5, 0, floor(当前z) + 0.5)
+				地板.name = "走廊地板_%d" % 父节点.get_child_count()
+				父节点.add_child(地板)
+				当前z += sign(目标z - 当前z)
+			while abs(当前x - 目标x) > 0.01:
+				var 地板 := 地板场景.instantiate()
+				地板.position = Vector3(floor(当前x) + 0.5, 0, floor(当前z) + 0.5)
+				地板.name = "走廊地板_%d" % 父节点.get_child_count()
+				父节点.add_child(地板)
+				当前x += sign(目标x - 当前x)
+		_:
+			while abs(当前x - 目标x) > 0.01:
+				var 地板 := 地板场景.instantiate()
+				地板.position = Vector3(floor(当前x) + 0.5, 0, floor(当前z) + 0.5)
+				地板.name = "走廊地板_%d" % 父节点.get_child_count()
+				父节点.add_child(地板)
+				当前x += sign(目标x - 当前x)
+			while abs(当前z - 目标z) > 0.01:
+				var 地板 := 地板场景.instantiate()
+				地板.position = Vector3(floor(当前x) + 0.5, 0, floor(当前z) + 0.5)
+				地板.name = "走廊地板_%d" % 父节点.get_child_count()
+				父节点.add_child(地板)
+				当前z += sign(目标z - 当前z)
 
 
 func _连接键(节点A, 节点B) -> String:

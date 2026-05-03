@@ -7,6 +7,8 @@ class_name 移动
 @export var 启动加速度 := 90.0
 @export var 停止减速度 := 70.0
 @export var 朝向插值速率 := 12.0
+@export var 启用重力: bool = false
+@export var 重力: float = 20.0
 
 var 输入向量: Vector2 = Vector2.ZERO
 var 移速倍率 := 1.0
@@ -26,7 +28,10 @@ func _physics_process(delta: float) -> void:
   var 方向 := Vector3(输入.x, 0.0, 输入.y)
   var 目标 := 方向 * 基础移速 * 移速倍率
   var 加速 := 启动加速度 if 目标.length() > 0.0 else 停止减速度
-  角色.velocity = 角色.velocity.move_toward(目标, 加速 * delta)
+  var 目标速度 := Vector3(目标.x, 角色.velocity.y, 目标.z)
+  角色.velocity = 角色.velocity.move_toward(目标速度, 加速 * delta)
+  if 启用重力:
+    角色.velocity.y -= 重力 * delta
   角色.move_and_slide()
   if 角色.velocity.length() > 0.05:
     var 目标朝向 := atan2(角色.velocity.x, 角色.velocity.z)

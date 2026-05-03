@@ -49,6 +49,11 @@ func 尝试开启() -> bool:
 	var 房间根 := get_parent()
 	var 敌人列表 := get_tree().get_nodes_in_group("敌人")
 	var 当前房间敌人 := 敌人列表.filter(func(敌人):
+		if not is_instance_valid(敌人) or 敌人.get_parent() == null:
+			return false
+		var 属性节点 = 敌人.get_node_or_null("属性")
+		if 属性节点 and 属性节点.气血 <= 0:
+			return false
 		return 房间根.is_ancestor_of(敌人) or 敌人.get_parent() == 房间根
 	)
 

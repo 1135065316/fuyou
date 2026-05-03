@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://系统/敌人生成器.gd" id="4_diren"]
 [ext_resource type="PackedScene" path="res://角色/主角/主角.tscn" id="5_zhujiao"]
 [ext_resource type="Script" path="res://测试场景/相机跟随.gd" id="6_xiangji"]
+[ext_resource type="Script" path="res://UI/小地图.gd" id="7_xiaoditu"]
 
 [sub_resource type="Environment" id="Environment_fuben"]
 ambient_light_source = 2
@@ -79,3 +80,15 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 text = "重新开始"
+
+[node name="小地图" type="Control" parent="UI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -180.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 180.0
+grow_horizontal = 0
+custom_minimum_size = Vector2(164, 164)
+script = ExtResource("7_xiaoditu")

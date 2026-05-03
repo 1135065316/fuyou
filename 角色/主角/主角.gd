@@ -11,6 +11,7 @@ func _ready() -> void:
   $属性.加载模板属性()
   $名称标签.text = $属性.角色模板
   移动组件.移速倍率 = 属性组件.获取身法移速倍率()
+  移动组件.启用重力 = true
 
 
 func _physics_process(_delta: float) -> void:
