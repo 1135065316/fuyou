@@ -1,0 +1,81 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://场景/副本场景.gd" id="1_fuben"]
+[ext_resource type="Script" path="res://系统/游戏管理器.gd" id="2_youxi"]
+[ext_resource type="Script" path="res://系统/房间管理器.gd" id="3_fangjian"]
+[ext_resource type="Script" path="res://系统/敌人生成器.gd" id="4_diren"]
+[ext_resource type="PackedScene" path="res://角色/主角/主角.tscn" id="5_zhujiao"]
+[ext_resource type="Script" path="res://测试场景/相机跟随.gd" id="6_xiangji"]
+
+[sub_resource type="Environment" id="Environment_fuben"]
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.5, 0.6, 1)
+ambient_light_energy = 1.2
+
+[node name="副本场景" type="Node3D"]
+script = ExtResource("1_fuben")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_fuben")
+
+[node name="游戏管理器" type="Node" parent="."]
+script = ExtResource("2_youxi")
+
+[node name="房间管理器" type="Node3D" parent="."]
+script = ExtResource("3_fangjian")
+
+[node name="敌人生成器" type="Node" parent="."]
+script = ExtResource("4_diren")
+
+[node name="主角" parent="." instance=ExtResource("5_zhujiao")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="主角相机" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 15, 12)
+current = true
+script = ExtResource("6_xiangji")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="房间信息" type="Label" parent="UI"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 16.0
+offset_right = 100.0
+offset_bottom = 48.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 20
+text = "准备中..."
+horizontal_alignment = 1
+
+[node name="结束面板" type="PanelContainer" parent="UI"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -80.0
+offset_right = 150.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/结束面板"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="标题" type="Label" parent="UI/结束面板/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "游戏结束"
+horizontal_alignment = 1
+
+[node name="重新开始" type="Button" parent="UI/结束面板/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "重新开始"

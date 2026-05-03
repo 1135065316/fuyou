@@ -2,34 +2,46 @@ extends Node
 class_name 走廊生成器
 
 const 走廊地板路径 := "res://房间/地板.tscn"
-const 房间间距 := 12.0
+const 房间间距 := 15.0
 
-func 生成走廊(从节点: 房间生成器.房间图节点, 到节点: 房间生成器.房间图节点) -> Node3D:
-	var 走廊根 := Node3D.new()
-	走廊根.name = "走廊_%s_%s" % [从节点.房间ID, 到节点.房间ID]
-
-	var 起点 := Vector3(从节点.位置.x * 房间间距, 0, 从节点.位置.y * 房间间距)
-	var 终点 := Vector3(到节点.位置.x * 房间间距, 0, 到节点.位置.y * 房间间距)
-
-	var 中点 := Vector3(终点.x, 0, 起点.z)
-	var 路径点 := [起点, 中点, 终点]
-
+func 生成所有走廊(图: Array, 父节点: Node3D) -> void:
 	var 地板场景: PackedScene = load(走廊地板路径)
 	if 地板场景 == null:
 		push_error("[走廊生成器] 无法加载走廊地板")
-		return 走廊根
+		return
 
-	for i in range(路径点.size() - 1):
-		var 段起点 := 路径点[i]
-		var 段终点 := 路径点[i + 1]
-		var 段方向 := (段终点 - 段起点).normalized()
-		var 段长度 := 段起点.distance_to(段终点)
-		var 步数 := int(段长度)
+	var 已处理: Dictionary = {}
 
-		for step in range(步数 + 1):
-			var 位置 := 段起点 + 段方向 * step
-			var 地板 := 地板场景.instantiate()
-			地板.position = Vector3(round(位置.x) + 0.5, 0, round(位置.z) + 0.5)
-			走廊根.add_child(地板)
+	for 节点 in 图:
+		for 方向 in 节点.连接门.keys():
+			var 相邻节点 = 节点.连接门[方向]
+			var 键: String = _连接键(节点, 相邻节点)
+			if 已处理.has(键):
+				continue
+			已处理[键] = true
 
-	return 走廊根
+			var 起点 := Vector3(节点.位置.x * 房间间距, 0, 节点.位置.y * 房间间距)
+			var 终点 := Vector3(相邻节点.位置.x * 房间间距, 0, 相邻节点.位置.y * 房间间距)
+			_生成直线走廊(起点, 终点, 地板场景, 父节点)
+
+
+func _生成直线走廊(起点: Vector3, 终点: Vector3, 地板场景: PackedScene, 父节点: Node3D) -> void:
+	var 方向 := 终点 - 起点
+	var 长度 := 方向.length()
+	var 单位方向 := 方向.normalized()
+	var 步数 := int(长度)
+
+	for i in range(步数 + 1):
+		var 位置 := 起点 + 单位方向 * i
+		var 地板 := 地板场景.instantiate()
+		地板.position = Vector3(round(位置.x) + 0.5, 0, round(位置.z) + 0.5)
+		地板.name = "走廊地板_%d" % i
+		父节点.add_child(地板)
+
+
+func _连接键(节点A, 节点B) -> String:
+	var  IDA: String = 节点A.房间ID
+	var  IDB: String = 节点B.房间ID
+	if IDA < IDB:
+		return IDA + "_" + IDB
+	return IDB + "_" + IDA

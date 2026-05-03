@@ -11,6 +11,9 @@ albedo_color = Color(1, 0.3, 0.3, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_men"]
 size = Vector3(0.8, 1.2, 0.1)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_zuse"]
+size = Vector3(0.8, 1.2, 0.1)
+
 [node name="门" type="Area3D"]
 script = ExtResource("1_menxi")
 
@@ -20,3 +23,8 @@ surface_material_override/0 = SubResource("StandardMaterial3D_men")
 
 [node name="碰撞体" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_men")
+
+[node name="阻挡体" type="StaticBody3D" parent="."]
+
+[node name="阻挡碰撞体" type="CollisionShape3D" parent="阻挡体"]
+shape = SubResource("BoxShape3D_zuse")

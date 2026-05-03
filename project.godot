@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="蜉蝣录"
-run/main_scene="res://测试场景/移动测试.tscn"
+run/main_scene="res://场景/副本场景.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 

@@ -26,6 +26,10 @@ func _更新门状态() -> void:
 	if 碰撞体:
 		碰撞体.disabled = 已开启
 
+	var 阻挡碰撞体 := get_node_or_null("阻挡体/阻挡碰撞体")
+	if 阻挡碰撞体:
+		阻挡碰撞体.disabled = 已开启
+
 	var 网格 := get_node_or_null("网格")
 	if 网格 and 网格 is MeshInstance3D:
 		var 材质: Material = 网格.get_active_material(0)
@@ -45,7 +49,7 @@ func 尝试开启() -> bool:
 	var 房间根 := get_parent()
 	var 敌人列表 := get_tree().get_nodes_in_group("敌人")
 	var 当前房间敌人 := 敌人列表.filter(func(敌人):
-		return 敌人.is_ancestor_of(房间根) or 敌人.get_parent() == 房间根
+		return 房间根.is_ancestor_of(敌人) or 敌人.get_parent() == 房间根
 	)
 
 	if 当前房间敌人.is_empty():
