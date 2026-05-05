@@ -6,7 +6,7 @@ const 普通敌人场景路径 = "res://角色/敌人/普通敌人.tscn"
 var 已生成敌人: Array[Node3D] = []
 
 
-func 生成敌人(房间根节点: Node3D) -> Array[Node3D]:
+func 生成敌人(房间根节点: Node3D, 层数: int = 1) -> Array[Node3D]:
 	已生成敌人.clear()
 
 	var 生成点根 = 房间根节点.get_node_or_null("生成点")
@@ -31,6 +31,16 @@ func 生成敌人(房间根节点: Node3D) -> Array[Node3D]:
 		敌人.add_to_group("敌人")
 		房间根节点.add_child(敌人)
 		已生成敌人.append(敌人)
+
+		# 随机装备
+		var 装备组件节点 := 敌人.get_node_or_null("装备组件")
+		if 装备组件节点 and 装备组件节点.has_method("穿戴"):
+			var 掉落生成器 := load("res://公共/掉落物生成器.gd")
+			if 掉落生成器:
+				var 随机装备: Resource = 掉落生成器.随机生成装备(层数)
+				if 随机装备:
+					装备组件节点.拾取(随机装备)
+					装备组件节点.穿戴(随机装备)
 		print("[敌人生成器] 生成 ", 模板名, " at ", 标记.global_position)
 
 	return 已生成敌人

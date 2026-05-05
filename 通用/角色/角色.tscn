@@ -1,10 +1,13 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://通用/角色/移动.gd" id="1_yidong"]
 [ext_resource type="Script" path="res://通用/角色/属性.gd" id="2_shuxing"]
 [ext_resource type="Script" path="res://通用/角色/受击.gd" id="3_shouji"]
 [ext_resource type="Script" path="res://通用/角色/血条.gd" id="4_xuetiao"]
 [ext_resource type="Script" path="res://通用/角色/名称标签.gd" id="5_mingcheng"]
+[ext_resource type="Script" path="res://通用/装备/装备组件.gd" id="6_zhuangbei"]
+[ext_resource type="Script" path="res://通用/装备/技能冷却.gd" id="6_lengque"]
+[ext_resource type="Script" path="res://UI/装备图标HUD.gd" id="7_tubiaoHUD"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_jiaose"]
 
@@ -51,6 +54,16 @@ billboard = 1
 font_size = 128
 horizontal_alignment = 2
 script = ExtResource("5_mingcheng")
+
+[node name="装备组件" type="Node" parent="."]
+script = ExtResource("6_zhuangbei")
+
+[node name="技能冷却" type="Node" parent="装备组件"]
+script = ExtResource("6_lengque")
+
+[node name="装备图标HUD" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+script = ExtResource("7_tubiaoHUD")
 
 [node name="受击粒子" type="CPUParticles3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)

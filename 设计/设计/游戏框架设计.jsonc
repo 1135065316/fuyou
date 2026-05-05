@@ -99,10 +99,19 @@
       "content": "**完整战斗系统**\n\n- 技能 / 法宝 / 境界压制\n- 死亡 / 掉落 / 吸收"
     },
     {
-      "id": "n9",
+      "id": "n12",
       "type": "markdown",
       "x": 560,
       "y": 600,
+      "width": 320,
+      "height": 160,
+      "content": "**装备系统 🔨**\n\n- `设计/数据/装备系统.jsonc` 配置表\n- `设计/数据/装备池.jsonc` 模板池\n- 5部位：武器/法冠/道袍/步履/饰品\n- 装备词条 + 技能 + CD绑定\n- 合成（2合1）+ 掉落物\n- 装备图标HUD（自走棋风格）"
+    },
+    {
+      "id": "n9",
+      "type": "markdown",
+      "x": 560,
+      "y": 800,
       "width": 320,
       "height": 100,
       "content": "**世界生成**\n\n- 随机地图 / 生态分布\n- 灵气浓度 / 危险区域"
@@ -111,7 +120,7 @@
       "id": "n10",
       "type": "markdown",
       "x": 560,
-      "y": 740,
+      "y": 940,
       "width": 320,
       "height": 100,
       "content": "**传承 + 天道观察**\n\n- 死亡后世界残留传承\n- 多局元游戏视角"
@@ -125,7 +134,8 @@
     { "id": "c3", "from": "n0", "to": "n5", "fromSide": "right", "toSide": "left" },
     { "id": "c4", "from": "n6", "to": "n7", "fromSide": "bottom", "toSide": "top" },
     { "id": "c5", "from": "n7", "to": "n8", "fromSide": "bottom", "toSide": "top" },
-    { "id": "c6", "from": "n8", "to": "n9", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c9", "from": "n8", "to": "n12", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c6", "from": "n12", "to": "n9", "fromSide": "bottom", "toSide": "top" },
     { "id": "c7", "from": "n9", "to": "n10", "fromSide": "bottom", "toSide": "top" }
   ]
 }

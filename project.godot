@@ -13,7 +13,14 @@ config_version=5
 config/name="蜉蝣录"
 run/main_scene="res://场景/副本场景.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
+run/flush_stdout_on_print=true
 config/icon="res://icon.svg"
+
+[debug]
+
+file_logging/enable_file_logging=true
+file_logging/log_path="user://用户操作日志.log"
+file_logging/max_log_files=1
 
 [input]
 

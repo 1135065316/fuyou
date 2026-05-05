@@ -17,6 +17,7 @@
 | 项 | 选择 |
 |----|------|
 | 引擎 | **Godot 4.6.stable**（Forward Plus 渲染） |
+| Godot 路径 | `D:\dev\godot\Godot_v4.6-stable_win64.exe\Godot_v4.6-stable_win64.exe` |
 | 物理 | Jolt Physics（3D） |
 | 渲染后端 | D3D12（Windows） |
 | 脚本 | GDScript（默认） |
@@ -58,6 +59,7 @@ icon.svg             项目图标
 - `run_project` 后用 `get_debug_output` 取控制台日志，`stop_project` 收尾
 - HelloWorld 验证链路：`测试场景/HelloWorld.tscn`
 - **注意**：`run_project` 是阻塞式的，会直到 Godot 退出才返回。如果场景里调了 `get_tree().quit()`，`get_debug_output` 会报 "No active Godot process"。验证用脚本应保持运行，由 `stop_project` 收尾。
+- **用户操作日志排查**：当交互问题（拖拽无反应、点击无效等）难以通过 MCP 复现时，查看 `user://用户操作日志.log`（Windows 下实际路径为 `C:/Users/<用户名>/AppData/Roaming/Godot/app_userdata/蜉蝣录/用户操作日志.log`），该文件由 Godot 内置 `debug/file_logging` 自动捕获 `print()` 和 `push_error()` 输出。如需额外事件记录，可在控件中用 `print()` 打印，日志自动落盘。
 
 ## 本地参考仓库
 为了避免落到 Godot 3.x 的写法，下面三个仓库已克隆在本机，可直接 `Read` / `Grep`：
