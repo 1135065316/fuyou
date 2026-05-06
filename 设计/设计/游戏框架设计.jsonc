@@ -105,7 +105,25 @@
       "y": 600,
       "width": 320,
       "height": 160,
-      "content": "**装备系统 🔨**\n\n- `设计/数据/装备系统.jsonc` 配置表\n- `设计/数据/装备池.jsonc` 模板池\n- 5部位：武器/法冠/道袍/步履/饰品\n- 装备词条 + 技能 + CD绑定\n- 合成（2合1）+ 掉落物\n- 装备图标HUD（自走棋风格）"
+      "content": "**装备系统 🔨（已落地）**\n\n- `设计/数据/装备系统.jsonc` + `装备池.jsonc`\n- 5部位装备 + 词条 + 合成\n- 武器提供2个被动（增强普攻/大招）\n- 自走棋风格装备栏HUD"
+    },
+    {
+      "id": "n13",
+      "type": "markdown",
+      "x": 100,
+      "y": 960,
+      "width": 320,
+      "height": 120,
+      "content": "**神魂系统 ✨**\n\n- `设计/数据/神魂池.jsonc`\n- 角色死后概率掉落角色卡\n- 提供普攻+大招技能\n- 2合1升品级，自走棋角色卡风格"
+    },
+    {
+      "id": "n14",
+      "type": "markdown",
+      "x": 100,
+      "y": 1120,
+      "width": 320,
+      "height": 120,
+      "content": "**大厅场景 🏛️**\n\n- `场景/大厅场景.tscn`\n- NPC：交易行 / 裁缝 / 仓库\n- 初始房间通往大厅的安全区\n- 全局状态单例跨场景保存"
     },
     {
       "id": "n9",
@@ -136,6 +154,9 @@
     { "id": "c5", "from": "n7", "to": "n8", "fromSide": "bottom", "toSide": "top" },
     { "id": "c9", "from": "n8", "to": "n12", "fromSide": "bottom", "toSide": "top" },
     { "id": "c6", "from": "n12", "to": "n9", "fromSide": "bottom", "toSide": "top" },
-    { "id": "c7", "from": "n9", "to": "n10", "fromSide": "bottom", "toSide": "top" }
+    { "id": "c7", "from": "n9", "to": "n10", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c10", "from": "n4", "to": "n13", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c11", "from": "n13", "to": "n14", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c12", "from": "n14", "to": "n12", "fromSide": "right", "toSide": "left" }
   ]
 }

@@ -13,4 +13,8 @@ func _on_body_entered(body: Node3D) -> void:
 
   var 我的属性: Node = get_parent().get_node("属性")
   var 对方属性: Node = body.get_node("属性")
-  对方属性.受伤(我的属性.劲力)
+  var 伤害值: int = 我的属性.劲力
+  var 技能节点 = get_parent().get_node_or_null("技能管理器")
+  if 技能节点 and 技能节点.has_method("计算普攻伤害"):
+    伤害值 = 技能节点.计算普攻伤害(我的属性.劲力)
+  对方属性.受伤(伤害值)

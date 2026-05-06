@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://角色/主角/主角.tscn" id="5_zhujiao"]
 [ext_resource type="Script" path="res://测试场景/相机跟随.gd" id="6_xiangji"]
 [ext_resource type="Script" path="res://UI/小地图.gd" id="7_xiaoditu"]
+[ext_resource type="Script" path="res://UI/快捷道具栏.gd" id="8_kuaijie"]
 
 [sub_resource type="Environment" id="Environment_fuben"]
 ambient_light_source = 2
@@ -92,3 +93,16 @@ offset_bottom = 180.0
 grow_horizontal = 0
 custom_minimum_size = Vector2(164, 164)
 script = ExtResource("7_xiaoditu")
+
+[node name="快捷道具栏" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_top = -60.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("8_kuaijie")

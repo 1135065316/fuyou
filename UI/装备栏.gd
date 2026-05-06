@@ -96,8 +96,21 @@ func _构建界面() -> void:
     var 图标 := _创建图标(面板, Vector2(槽起始X + 48, y), "slot:%d" % i)
     槽图标列表.append(图标)
 
+  # 神魂槽
+  var 神魂Y := 72 + 5 * (图标尺寸 + 图标间距) + 8
+  _构建分区标题(面板, Vector2(槽起始X, 神魂Y), "神魂")
+  var 神魂标签 := Label.new()
+  神魂标签.position = Vector2(槽起始X, 神魂Y + 图标尺寸 * 0.3)
+  神魂标签.size = Vector2(44, 20)
+  神魂标签.text = "神魂"
+  神魂标签.add_theme_font_size_override("font_size", 11)
+  神魂标签.add_theme_color_override("font_color", Color(0.45, 0.45, 0.5))
+  面板.add_child(神魂标签)
+  var 神魂图标 := _创建图标(面板, Vector2(槽起始X + 48, 神魂Y), "soul")
+  槽图标列表.append(神魂图标)
+
   # 合成
-  var 合成Y := 72 + 5 * (图标尺寸 + 图标间距) + 8
+  var 合成Y := 72 + 6 * (图标尺寸 + 图标间距) + 16
   _构建分区标题(面板, Vector2(20, 合成Y), "合成")
   合成槽A图标 = _创建图标(面板, Vector2(48, 合成Y + 24), "combine:A")
   var 加号 := Label.new()
@@ -129,6 +142,14 @@ func _构建界面() -> void:
   # 背包
   var 背包起始X := 槽起始X + 图标尺寸 + 24 + 40
   _构建分区标题(面板, Vector2(背包起始X, 48), "背包")
+
+  var 整理按钮 := Button.new()
+  整理按钮.position = Vector2(背包起始X + 180, 46)
+  整理按钮.size = Vector2(56, 22)
+  整理按钮.text = "整理"
+  整理按钮.add_theme_font_size_override("font_size", 10)
+  整理按钮.pressed.connect(_on_一键整理)
+  面板.add_child(整理按钮)
 
   var 网格宽 := 背包列数 * 图标尺寸 + (背包列数 - 1) * 图标间距
   var 网格高 := 背包行数 * 图标尺寸 + (背包行数 - 1) * 图标间距
@@ -250,6 +271,12 @@ func _处理拖放(目标标识: String, data: Dictionary) -> void:
       var 源索引: int = int(src.split(":")[1])
       装备组件引用.交换背包格子(源索引, 目标索引)
 
+  elif 目标标识 == "soul":
+    if src.begins_with("bag:"):
+      var 索引: int = int(src.split(":")[1])
+      var 物品 = 装备组件引用.背包[索引]
+      if 物品 != null and 装备组件引用.是神魂(物品):
+        装备组件引用.装备神魂(物品)
   elif 目标标识 == "combine:A":
     if src.begins_with("bag:"):
       _设置合成槽(eq, "A")
@@ -271,6 +298,8 @@ func _on_图标点击(图标: Control) -> void:
     return
   if 标识 == "combine:B":
     _设置合成槽(null, "B")
+    return
+  if 标识 == "soul":
     return
 
   if eq:
@@ -311,6 +340,8 @@ func _on_图标右键(图标: Control) -> void:
     装备组件引用.卸下(部位)
     _清除选中()
     _刷新全部()
+  elif 标识 == "soul":
+    return
   elif 标识.begins_with("bag:"):
     var 部位: int = eq.部位索引
     if 装备组件引用.当前装备.has(部位):
@@ -354,6 +385,12 @@ func _刷新装备槽() -> void:
     if 装备组件引用 and 装备组件引用.has_method("获取部位装备"):
       eq = 装备组件引用.获取部位装备(i)
     槽图标列表[i].refresh显示(eq)
+  # 神魂槽
+  if 槽图标列表.size() > 5:
+    var 当前神魂 = null
+    if 装备组件引用 and 装备组件引用.has_method("获取当前神魂"):
+      当前神魂 = 装备组件引用.获取当前神魂()
+    槽图标列表[5].refresh显示(当前神魂)
 
 
 func _刷新背包() -> void:
@@ -402,7 +439,12 @@ func _刷新合成栏() -> void:
       合成按钮 = c
       break
   var 合成状态 := 面板.get_node_or_null("合成状态") as Label
-  var 可合成 := 装备.能否合成(_合成槽A, _合成槽B) if _合成槽A and _合成槽B else false
+  var 可合成 := false
+  if _合成槽A and _合成槽B:
+    if 装备组件引用 and 装备组件引用.has_method("是神魂") and 装备组件引用.是神魂(_合成槽A):
+      可合成 = 神魂.能否合成(_合成槽A, _合成槽B)
+    else:
+      可合成 = 装备.能否合成(_合成槽A, _合成槽B)
   if 合成按钮:
     合成按钮.disabled = not 可合成
   if 合成状态:
@@ -420,9 +462,23 @@ func _刷新合成栏() -> void:
 func _执行合成() -> void:
   if not _合成槽A or not _合成槽B:
     return
-  if not 装备.能否合成(_合成槽A, _合成槽B):
-    return
-  装备.执行合成(_合成槽A, _合成槽B)
+
+  var 是神魂合成: bool = 装备组件引用 != null and 装备组件引用.has_method("是神魂") and 装备组件引用.是神魂(_合成槽A)
+  if 是神魂合成:
+    if not 神魂.能否合成(_合成槽A, _合成槽B):
+      return
+    var 结果 = 神魂.执行合成(_合成槽A, _合成槽B)
+    if 结果 and 装备组件引用:
+      for i in range(装备组件引用.背包.size()):
+        if 装备组件引用.背包[i] == null:
+          装备组件引用.背包[i] = 结果
+          装备组件引用.背包变更.emit()
+          break
+  else:
+    if not 装备.能否合成(_合成槽A, _合成槽B):
+      return
+    装备.执行合成(_合成槽A, _合成槽B)
+
   if 装备组件引用:
     for i in range(装备组件引用.背包.size()):
       if 装备组件引用.背包[i] == _合成槽B:
@@ -470,6 +526,13 @@ func 打开面板(组件: Node) -> void:
 func 关闭面板() -> void:
   visible = false
   面板关闭.emit()
+
+
+func _on_一键整理() -> void:
+  if 装备组件引用 and 装备组件引用.has_method("一键整理背包"):
+    装备组件引用.一键整理背包()
+    _清除选中()
+    _刷新全部()
 
 
 func _on_装备变更刷新(_部位: int, _新装备: Resource, _旧装备: Resource) -> void:

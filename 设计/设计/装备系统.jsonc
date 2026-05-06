@@ -1,0 +1,77 @@
+{
+  "editorType": "whiteboard",
+  "canvas": { "panX": 0, "panY": 0, "zoom": 1 },
+  "nodes": [
+    {
+      "id": "n0",
+      "type": "markdown",
+      "x": 100,
+      "y": 80,
+      "width": 900,
+      "height": 60,
+      "content": "# 装备系统\n\n5部位装备 + 词条 + 技能 + 合成 + 掉落"
+    },
+    {
+      "id": "n1",
+      "type": "markdown",
+      "x": 100,
+      "y": 200,
+      "width": 400,
+      "height": 180,
+      "content": "## 1. 装备数据结构\n\n`通用/装备/装备.gd` (extends Resource)\n- 名称 / 池ID / 部位索引(0~4) / 品级索引(0~4)\n- 基础属性 + 普通词条数组 + 特殊词条数组\n- 技能列表（主动/被动）\n- 系列化/反系列化"
+    },
+    {
+      "id": "n2",
+      "type": "markdown",
+      "x": 560,
+      "y": 200,
+      "width": 400,
+      "height": 180,
+      "content": "## 2. 装备组件\n\n`通用/装备/装备组件.gd`\n- 管理5部位当前装备（Dictionary）\n- 30格背包数组\n- 穿戴/卸下/拾取/丢弃/交换\n- 装备变更时应用/移除属性加成\n- 技能冷却节点统一管理"
+    },
+    {
+      "id": "n3",
+      "type": "markdown",
+      "x": 100,
+      "y": 440,
+      "width": 400,
+      "height": 180,
+      "content": "## 3. 装备池\n\n`设计/数据/装备池.jsonc` (godot表)\n- 按部位 × 品级组织的装备模板\n- 列：pool_id, name, slot, tier, base_affix..., normal_affixes, special_affixes, skills, weight, min_floor, max_floor\n- 运行时按层数筛选，加权随机生成实例"
+    },
+    {
+      "id": "n4",
+      "type": "markdown",
+      "x": 560,
+      "y": 440,
+      "width": 400,
+      "height": 180,
+      "content": "## 4. 合成系统\n\n`装备.能否合成 / 执行合成`\n- 条件：同池ID + 同品级 + 同部位\n- 结果：随机选择一项强化（基础属性/普通词条/主动技能CD）\n- 不是升品，是同品级内数值/冷却优化\n- 材料装备销毁"
+    },
+    {
+      "id": "n5",
+      "type": "markdown",
+      "x": 100,
+      "y": 680,
+      "width": 400,
+      "height": 180,
+      "content": "## 5. 掉落系统\n\n`公共/掉落物生成器.gd`\n- 敌人死亡时：已装备装备 35%/件 概率掉落，背包物品 20%/件\n- `场景/掉落物.gd`：3D世界掉落物，品级色+浮动动画\n- 玩家碰撞拾取 → 装备组件.拾取()"
+    },
+    {
+      "id": "n6",
+      "type": "markdown",
+      "x": 560,
+      "y": 680,
+      "width": 400,
+      "height": 180,
+      "content": "## 6. 装备栏UI\n\n`UI/装备栏.gd` + `UI/合成栏.gd`\n- 自走棋风格HUD\n- 左侧属性面板 + 5装备槽 + 合成区\n- 右侧背包网格（4列×5行）\n- 拖放交互：槽位↔背包、背包↔合成槽\n- 详情悬浮面板显示装备全部信息"
+    }
+  ],
+  "connections": [
+    { "id": "c0", "from": "n1", "to": "n2", "fromSide": "right", "toSide": "left" },
+    { "id": "c1", "from": "n1", "to": "n3", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c2", "from": "n3", "to": "n4", "fromSide": "right", "toSide": "left" },
+    { "id": "c3", "from": "n2", "to": "n5", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c4", "from": "n5", "to": "n6", "fromSide": "right", "toSide": "left" },
+    { "id": "c5", "from": "n4", "to": "n6", "fromSide": "bottom", "toSide": "top" }
+  ]
+}

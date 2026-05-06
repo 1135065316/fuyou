@@ -1,7 +1,7 @@
 extends Area3D
 class_name 掉落物
 
-var 绑定的装备: 装备 = null
+var 绑定的物品: Resource = null
 
 @onready var 网格节点: MeshInstance3D = $网格
 @onready var 名称标签: Label3D = $名称标签
@@ -10,16 +10,18 @@ var 绑定的装备: 装备 = null
 var _初始Y: float = 0.0
 
 
-func 初始化(装备实例: 装备) -> void:
-	绑定的装备 = 装备实例
+func 初始化(物品实例: Resource) -> void:
+	绑定的物品 = 物品实例
 	_初始Y = position.y
 
 	if 名称标签:
-		名称标签.text = 装备实例.名称
+		名称标签.text = 物品实例.名称
 
 	if 网格节点:
 		var 颜色 := Color.WHITE
-		var 颜色字符串: String = 装备实例.获取品级颜色()
+		var 颜色字符串: String = ""
+		if 物品实例.has_method("获取品级颜色"):
+			颜色字符串 = 物品实例.获取品级颜色()
 		if not 颜色字符串.is_empty():
 			颜色 = Color(颜色字符串)
 		var 材质 := StandardMaterial3D.new()
@@ -67,5 +69,11 @@ func _on_拾取(body: Node3D) -> void:
 	if 组件 == null:
 		return
 
-	if 组件.拾取(绑定的装备):
+	var 已拾取 := false
+	if 绑定的物品.has_method("普攻技能ID"):
+		已拾取 = 组件.拾取神魂(绑定的物品)
+	else:
+		已拾取 = 组件.拾取(绑定的物品)
+
+	if 已拾取:
 		queue_free()

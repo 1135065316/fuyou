@@ -5,6 +5,7 @@ const 装备脚本 = preload("res://通用/装备/装备.gd")
 @onready var 移动组件: Node = $移动
 @onready var 属性组件: Node = $属性
 @onready var 装备组件节点: Node = $装备组件
+@onready var 技能管理器节点: Node = $技能管理器
 
 var 装备面板实例: Control = null
 var _面板已打开 := false
@@ -26,8 +27,11 @@ func _physics_process(_delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-  if event is InputEventKey and event.pressed and event.keycode == KEY_I:
-    _切换装备面板()
+  if event is InputEventKey and event.pressed:
+    if event.keycode == KEY_I:
+      _切换装备面板()
+    elif event.keycode == KEY_SPACE:
+      _释放大招()
 
 
 func _切换装备面板() -> void:
@@ -61,6 +65,14 @@ func _关闭装备面板() -> void:
   _面板已打开 = false
 
 
+func _释放大招() -> void:
+  if 技能管理器节点 and 技能管理器节点.has_method("是否有大招"):
+    if 技能管理器节点.是否有大招():
+      var 大招配置 = 技能管理器节点.获取大招配置()
+      print("[主角] 释放大招: %s (倍率%.1f)" % [大招配置.get("id", ""), 大招配置.get("倍率", 1.0)])
+      # TODO: 大招的实际效果（范围伤害、特效等）
+
+
 func _on_面板关闭() -> void:
   _面板已打开 = false
   if 装备面板实例:
@@ -81,10 +93,5 @@ func _初始化随机装备() -> void:
       装备组件节点.拾取(装备实例)
       print("[主角] 测试装备 %d: %s(%s)" % [i + 1, 装备实例.名称, 装备实例.获取部位名()])
 
-  # 自动穿戴第一个非空装备
-  for i in range(装备组件节点.背包.size()):
-    if 装备组件节点.背包[i] != null:
-      var 要穿戴的装备: Resource = 装备组件节点.背包[i]
-      装备组件节点.穿戴(要穿戴的装备)
-      print("[主角] 自动穿戴: %s" % 要穿戴的装备.名称)
-      break
+  # 不再自动穿戴（避免与神魂选择冲突，由玩家手动装备）
+  print("[主角] 测试装备已生成，请手动装备")

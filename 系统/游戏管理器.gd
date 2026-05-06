@@ -93,6 +93,7 @@ func _开始新游戏(层数: int) -> void:
   var 房间世界位置 := Vector3(当前房间节点.位置.x * 房间间距, 0, 当前房间节点.位置.y * 房间间距)
   房间管理器节点.加载房间(当前房间节点.模板ID, 当前房间节点.连接门, 房间世界位置)
   _放置主角到房间中心()
+  _初始化快捷道具栏()
   _生成走廊和触发器(当前房间节点)
   _尝试开启当前房间门()
   _更新相机边界()
@@ -106,6 +107,75 @@ func _开始新游戏(层数: int) -> void:
     小地图节点.设置楼层图(当前楼层图)
   if 小地图节点 and 小地图节点.has_method("设置当前房间"):
     小地图节点.设置当前房间(当前房间节点)
+
+  _添加大厅门(房间管理器节点.当前房间)
+  call_deferred("_检查初始神魂")
+
+
+func _检查初始神魂() -> void:
+  if 主角实例 == null:
+    return
+  var 装备节点 = 主角实例.get_node_or_null("装备组件")
+  if 装备节点 == null:
+    return
+  if 装备节点.获取当前神魂() != null:
+    return
+  var 面板 = load("res://UI/神魂选择面板.gd").new()
+  var ui层 = get_tree().current_scene.get_node_or_null("UI")
+  if ui层:
+    ui层.add_child(面板)
+    面板.显示三选一(装备节点)
+
+
+func _添加大厅门(房间根: Node3D) -> void:
+  if 房间根 == null:
+    return
+  var 数据 = 房间管理器节点.当前房间数据
+  var size_x = 数据.get("size_x", 8)
+  var size_z = 数据.get("size_z", 8)
+  var 门位置 = Vector3(size_x / 2.0 + 0.5, 0.5, size_z - 0.5)
+  var 触发器 = Area3D.new()
+  触发器.name = "大厅门"
+  触发器.position = 门位置
+  var 碰撞体 = CollisionShape3D.new()
+  var 形状 = BoxShape3D.new()
+  形状.size = Vector3(1.5, 2, 1.5)
+  碰撞体.shape = 形状
+  触发器.add_child(碰撞体)
+  触发器.body_entered.connect(_on_进入大厅)
+  房间根.add_child(触发器)
+  var 标记 = MeshInstance3D.new()
+  var 网格 = BoxMesh.new()
+  网格.size = Vector3(0.6, 1.0, 0.6)
+  标记.mesh = 网格
+  标记.position = 门位置 + Vector3(0, 0.5, 0)
+  var 材质 = StandardMaterial3D.new()
+  材质.albedo_color = Color(1.0, 0.84, 0.0, 0.5)
+  材质.emission_enabled = true
+  材质.emission = Color(1.0, 0.84, 0.0)
+  标记.set_surface_override_material(0, 材质)
+  房间根.add_child(标记)
+
+
+func _on_进入大厅(body: Node3D) -> void:
+  if not body.is_in_group("玩家"):
+    return
+  if 当前状态 != 游戏状态.探索中:
+    return
+  var 全局状态节点 = get_node_or_null("/root/全局状态")
+  if 全局状态节点 and 全局状态节点.has_method("保存到大厅"):
+    全局状态节点.保存到大厅(主角实例)
+  get_tree().change_scene_to_file("res://场景/大厅场景.tscn")
+
+
+func _初始化快捷道具栏() -> void:
+  var ui层 := get_tree().current_scene.get_node_or_null("UI")
+  if ui层:
+    var 快捷栏 = ui层.get_node_or_null("快捷道具栏")
+    if 快捷栏 and 快捷栏.has_method("设置装备组件") and 主角实例:
+      var 装备节点 = 主角实例.get_node_or_null("装备组件")
+      if 装备节点:
+        快捷栏.设置装备组件(装备节点)
 
 
 func _生成走廊和触发器(节点) -> void:

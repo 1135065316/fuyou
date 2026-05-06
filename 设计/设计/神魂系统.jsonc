@@ -1,0 +1,96 @@
+{
+  "editorType": "whiteboard",
+  "canvas": { "panX": 0, "panY": 0, "zoom": 1 },
+  "nodes": [
+    {
+      "id": "n0",
+      "type": "markdown",
+      "x": 100,
+      "y": 80,
+      "width": 900,
+      "height": 60,
+      "content": "# 神魂系统\n\n角色死后概率掉落的角色卡，装备后提供普攻+大招技能"
+    },
+    {
+      "id": "n1",
+      "type": "markdown",
+      "x": 100,
+      "y": 200,
+      "width": 400,
+      "height": 180,
+      "content": "## 1. 神魂数据结构\n\n`通用/装备/神魂.gd` (extends Resource)\n- 名称 / 池ID / 品级索引(0~4)\n- 普攻技能ID / 大招技能ID\n- 基础属性名 / 基础属性值\n- 系列化/反系列化支持跨场景保存"
+    },
+    {
+      "id": "n2",
+      "type": "markdown",
+      "x": 560,
+      "y": 200,
+      "width": 400,
+      "height": 180,
+      "content": "## 2. 神魂池\n\n`设计/数据/神魂池.jsonc` (godot表)\n- 按 enemy_template 分组：普通敌人 / Boss / 主角\n- 列：pool_id, tier, normal_attack_skill, ultimate_skill, base_affix...\n- 死亡掉落时按敌人模板 + 根骨品级匹配"
+    },
+    {
+      "id": "n3",
+      "type": "markdown",
+      "x": 100,
+      "y": 440,
+      "width": 400,
+      "height": 180,
+      "content": "## 3. 掉落规则\n\n`公共/掉落物生成器.gd`\n- 基础概率 15%，根骨品级加成：凡品+0% / 良品+5% / 上品+10% / 极品+15% / 天品+20%\n- 掉落品级 = 敌人根骨品级\n-  enemy_template 映射到神魂池匹配模板\n- 掉落物表现复用现有装备掉落物（duck typing兼容）"
+    },
+    {
+      "id": "n4",
+      "type": "markdown",
+      "x": 560,
+      "y": 440,
+      "width": 400,
+      "height": 180,
+      "content": "## 4. 合成规则\n\n`神魂.能否合成 / 执行合成`\n- 条件：同池ID + 同品级 + 非天品\n- 结果：品级+1，保留原形态（名称加'·进阶'后缀）\n- 基础属性值按新品级范围重新随机\n- 技能ID不变，倍率随品级提升\n- 材料神魂销毁"
+    },
+    {
+      "id": "n5",
+      "type": "markdown",
+      "x": 100,
+      "y": 680,
+      "width": 400,
+      "height": 180,
+      "content": "## 5. 技能架构\n\n`通用/装备/技能管理器.gd`\n- 神魂提供：普攻技能（倍率）+ 大招技能（冷却+倍率+特效）\n- 武器提供：2个被动技能（增强普攻 / 增强大招）\n- 受击时伤害 = 劲力 × 普攻倍率 × (1 + 被动加成之和)\n- 大招通过空格键触发，走技能冷却系统"
+    },
+    {
+      "id": "n6",
+      "type": "markdown",
+      "x": 560,
+      "y": 680,
+      "width": 400,
+      "height": 180,
+      "content": "## 6. UI\n\n- `UI/神魂选择面板.gd`：初始房间三选一（自走棋角色卡风格）\n- `UI/装备栏.gd`：新增神魂槽位 + 背包混放支持 + 一键整理\n- `UI/快捷道具栏.gd`：底部中间快捷栏，显示背包前N格\n- 神魂装备后不可拆卸，只可合成或替换（旧神魂销毁）"
+    },
+    {
+      "id": "n7",
+      "type": "markdown",
+      "x": 100,
+      "y": 920,
+      "width": 400,
+      "height": 140,
+      "content": "## 7. 初始三选一\n\n`系统/游戏管理器.gd`\n- 新游戏进入初始房间后，检测身上是否已装备神魂\n- 若无，弹出三选一面板，从主角神魂池随机抽取3个凡品\n- 选择后自动装备，游戏继续"
+    },
+    {
+      "id": "n8",
+      "type": "markdown",
+      "x": 560,
+      "y": 920,
+      "width": 400,
+      "height": 140,
+      "content": "## 8. 大厅交互\n\n- 初始房间有门通往大厅（始终开启）\n- 大厅内有NPC：交易行 / 裁缝 / 仓库\n- 从大厅可返回副本，状态通过全局单例保存"
+    }
+  ],
+  "connections": [
+    { "id": "c0", "from": "n1", "to": "n2", "fromSide": "right", "toSide": "left" },
+    { "id": "c1", "from": "n1", "to": "n3", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c2", "from": "n2", "to": "n4", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c3", "from": "n3", "to": "n5", "fromSide": "right", "toSide": "left" },
+    { "id": "c4", "from": "n4", "to": "n6", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c5", "from": "n5", "to": "n7", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c6", "from": "n7", "to": "n8", "fromSide": "right", "toSide": "left" }
+  ]
+}

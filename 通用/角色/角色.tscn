@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://通用/装备/装备组件.gd" id="6_zhuangbei"]
 [ext_resource type="Script" path="res://通用/装备/技能冷却.gd" id="6_lengque"]
 [ext_resource type="Script" path="res://UI/装备图标HUD.gd" id="7_tubiaoHUD"]
+[ext_resource type="Script" path="res://通用/装备/技能管理器.gd" id="8_jineng"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_jiaose"]
 
@@ -81,3 +82,6 @@ scale_amount_min = 0.5
 scale_amount_max = 1.5
 color = Color(1, 0, 0, 1)
 mesh = SubResource("BoxMesh_lizi")
+
+[node name="技能管理器" type="Node" parent="."]
+script = ExtResource("8_jineng")
