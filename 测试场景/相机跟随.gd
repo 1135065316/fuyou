@@ -12,10 +12,10 @@ func _ready() -> void:
 	主角 = get_node_or_null("../主角") as Node3D
 	if 主角:
 		print("[相机] 已锁定目标: ", 主角.name)
-		# 固定俯视角，不再随主角旋转
-		var 水平距离 := Vector2(偏移.x, 偏移.z).length()
-		var 俯仰角 := rad_to_deg(atan2(偏移.y, 水平距离))
-		rotation_degrees = Vector3(-俯仰角, 0, 0)
+	# 固定俯视角，不再随主角旋转
+	var 水平距离 := Vector2(偏移.x, 偏移.z).length()
+	var 俯仰角 := rad_to_deg(atan2(偏移.y, 水平距离))
+	rotation_degrees = Vector3(-俯仰角, 0, 0)
 
 
 func _process(_delta: float) -> void:

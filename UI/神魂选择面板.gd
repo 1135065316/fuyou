@@ -28,14 +28,20 @@ func _构建界面() -> void:
 	标题.offset_bottom = 120
 	add_child(标题)
 
-	var 中心容器 = CenterContainer.new()
-	中心容器.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(中心容器)
-
 	var 容器 = HBoxContainer.new()
 	容器.alignment = BoxContainer.ALIGNMENT_CENTER
 	容器.add_theme_constant_override("separation", 50)
-	中心容器.add_child(容器)
+	add_child(容器)
+
+
+func _process(_delta: float) -> void:
+	if not visible:
+		return
+	var 容器 = get_child(2) if get_child_count() > 2 else null
+	if 容器 == null:
+		return
+	var 视口 = get_viewport_rect().size
+	容器.position = Vector2((视口.x - 容器.size.x) / 2.0, (视口.y - 容器.size.y) / 2.0)
 
 
 func 显示三选一(组件: Node = null) -> void:
@@ -73,7 +79,7 @@ func _获取神魂池() -> Array[Dictionary]:
 
 
 func _刷新卡片() -> void:
-	var 容器 = get_child(2).get_child(0) if get_child_count() > 2 else null
+	var 容器 = get_child(2) if get_child_count() > 2 else null
 	if 容器 == null:
 		return
 	for c in 容器.get_children():
