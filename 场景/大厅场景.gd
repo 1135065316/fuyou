@@ -24,15 +24,23 @@ func _加载玩家() -> void:
 		var 主角场景 = load("res://角色/主角/主角.tscn")
 		主角实例 = 主角场景.instantiate()
 		主角实例.name = "主角"
-		主角实例.position = Vector3(5, 0.5, 5)
 		add_child(主角实例)
 		主角实例.add_to_group("玩家")
+	# 无论恢复还是新建，都确保在大厅安全位置
+	主角实例.position = Vector3(5, 0.5, 5)
 
 
 func _设置NPC交互() -> void:
 	for npc in get_tree().get_nodes_in_group("NPC"):
-		if npc.has_signal("body_entered"):
-			npc.body_entered.connect(_on_NPC交互.bind(npc))
+		var 交互区 = npc.get_node_or_null("交互区")
+		if 交互区 and 交互区.has_signal("body_entered"):
+			交互区.body_entered.connect(_on_NPC交互.bind(npc))
+		var 标签 = npc.get_node_or_null("名称标签")
+		if 标签 is Label3D:
+			标签.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			var npc名称 = npc.get_meta("npc_type", "")
+			if not npc名称.is_empty():
+				标签.text = npc名称
 
 
 func _on_NPC交互(body: Node3D, npc: Node3D) -> void:
@@ -131,4 +139,8 @@ func _on_返回副本(body: Node3D) -> void:
 	var 全局状态节点 = get_node_or_null("/root/全局状态")
 	if 全局状态节点 and 全局状态节点.has_method("保存到大厅"):
 		全局状态节点.保存到大厅(主角实例)
+	call_deferred("_延迟返回副本")
+
+
+func _延迟返回副本() -> void:
 	get_tree().change_scene_to_file("res://场景/副本场景.tscn")

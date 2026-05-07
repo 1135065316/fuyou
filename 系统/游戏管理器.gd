@@ -188,6 +188,10 @@ func _on_进入大厅(body: Node3D) -> void:
   var 全局状态节点 = get_node_or_null("/root/全局状态")
   if 全局状态节点 and 全局状态节点.has_method("保存到大厅"):
     全局状态节点.保存到大厅(主角实例)
+  call_deferred("_延迟进入大厅")
+
+
+func _延迟进入大厅() -> void:
   get_tree().change_scene_to_file("res://场景/大厅场景.tscn")
 
 

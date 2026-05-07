@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://角色/NPC/NPC.gd" id="1_npc"]
+[ext_resource type="Script" path="res://通用/角色/属性.gd" id="2_shuxing"]
+[ext_resource type="Script" path="res://通用/角色/名称标签.gd" id="3_mingcheng"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_npc"]
+size = Vector3(0.8, 1.6, 0.8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_npc"]
+size = Vector3(0.8, 1.6, 0.8)
+
+[node name="NPC" type="CharacterBody3D"]
+groups = ["NPC"]
+script = ExtResource("1_npc")
+
+[node name="属性" type="Node" parent="."]
+script = ExtResource("2_shuxing")
+
+[node name="名称标签" type="Label3D" parent="."]
+font_size = 96
+horizontal_alignment = 1
+script = ExtResource("3_mingcheng")
+偏移 = Vector3(0, 1.2, 0)
+
+[node name="交互区" type="Area3D" parent="."]
+
+[node name="碰撞体" type="CollisionShape3D" parent="交互区"]
+shape = SubResource("BoxShape3D_npc")
+
+[node name="网格" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_npc")
