@@ -11,6 +11,9 @@ var 主角实例: Node3D = null
 
 func _ready() -> void:
 	print("[大厅] 场景就绪")
+	for child in get_children():
+		if child.has_meta("npc_type"):
+			child.add_to_group("NPC")
 	_加载玩家()
 	_设置NPC交互()
 	_设置返回副本()
