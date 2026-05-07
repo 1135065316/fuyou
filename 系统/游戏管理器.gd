@@ -50,12 +50,7 @@ func _开始新游戏(层数: int) -> void:
   if 旧主角:
     get_parent().remove_child(旧主角)
     旧主角.free()
-  var 主角场景: PackedScene = load("res://角色/主角/主角.tscn")
-  主角实例 = 主角场景.instantiate()
-  主角实例.name = "主角"
-  get_parent().add_child(主角实例)
-  主角实例.add_to_group("玩家")
-  主角实例.get_node("属性").死亡信号.connect(_on_主角死亡)
+  主角实例 = null
 
   if not 走廊根:
     走廊根 = Node3D.new()
@@ -92,6 +87,50 @@ func _开始新游戏(层数: int) -> void:
 
   var 房间世界位置 := Vector3(当前房间节点.位置.x * 房间间距, 0, 当前房间节点.位置.y * 房间间距)
   房间管理器节点.加载房间(当前房间节点.模板ID, 当前房间节点.连接门, 房间世界位置)
+
+  # 先检查是否有保存的状态（从大厅返回）
+  var 全局状态节点 = get_node_or_null("/root/全局状态")
+  if 全局状态节点 and 全局状态节点.has_method("恢复副本状态"):
+    if not 全局状态节点.玩家数据.is_empty():
+      主角实例 = 全局状态节点.恢复副本状态(get_parent())
+      if 主角实例:
+        _完成游戏启动()
+        return
+
+  # 新游戏：先选神魂，再实例化角色
+  _弹出初始神魂选择()
+
+
+func _弹出初始神魂选择() -> void:
+  var 面板 = load("res://UI/神魂选择面板.gd").new()
+  var ui层 = get_tree().current_scene.get_node_or_null("UI")
+  if ui层:
+    ui层.add_child(面板)
+    面板.选择完成.connect(_on_初始神魂选择完成.bind(面板))
+    面板.显示三选一()
+
+
+func _on_初始神魂选择完成(选中神魂: Resource, 面板: Control) -> void:
+  面板.queue_free()
+
+  # 实例化主角
+  var 主角场景: PackedScene = load("res://角色/主角/主角.tscn")
+  主角实例 = 主角场景.instantiate()
+  主角实例.name = "主角"
+  get_parent().add_child(主角实例)
+  主角实例.add_to_group("玩家")
+  主角实例.get_node("属性").死亡信号.connect(_on_主角死亡)
+
+  # 装备选中的神魂
+  if 选中神魂:
+    var 装备节点 = 主角实例.get_node_or_null("装备组件")
+    if 装备节点:
+      装备节点.装备神魂(选中神魂)
+
+  _完成游戏启动()
+
+
+func _完成游戏启动() -> void:
   _放置主角到房间中心()
   _初始化快捷道具栏()
   _生成走廊和触发器(当前房间节点)
@@ -101,7 +140,7 @@ func _开始新游戏(层数: int) -> void:
   _更新房间信息()
   _隐藏结束面板()
   _切换状态(游戏状态.探索中)
-  print("[游戏管理器] 第%d层已启动，共%d个房间" % [层数, 当前楼层图.size()])
+  print("[游戏管理器] 第%d层已启动，共%d个房间" % [当前层数, 当前楼层图.size()])
 
   if 小地图节点 and 小地图节点.has_method("设置楼层图"):
     小地图节点.设置楼层图(当前楼层图)
@@ -109,22 +148,6 @@ func _开始新游戏(层数: int) -> void:
     小地图节点.设置当前房间(当前房间节点)
 
   _添加大厅门(房间管理器节点.当前房间)
-  call_deferred("_检查初始神魂")
-
-
-func _检查初始神魂() -> void:
-  if 主角实例 == null:
-    return
-  var 装备节点 = 主角实例.get_node_or_null("装备组件")
-  if 装备节点 == null:
-    return
-  if 装备节点.获取当前神魂() != null:
-    return
-  var 面板 = load("res://UI/神魂选择面板.gd").new()
-  var ui层 = get_tree().current_scene.get_node_or_null("UI")
-  if ui层:
-    ui层.add_child(面板)
-    面板.显示三选一(装备节点)
 
 
 func _添加大厅门(房间根: Node3D) -> void:
@@ -438,6 +461,9 @@ func _on_主角死亡() -> void:
 
 func _on_重新开始() -> void:
   _隐藏结束面板()
+  var 全局状态节点 = get_node_or_null("/root/全局状态")
+  if 全局状态节点 and 全局状态节点.has_method("清空状态"):
+    全局状态节点.清空状态()
   _开始新游戏(1)
 
 

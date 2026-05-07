@@ -9,7 +9,7 @@ var 限制最大: Vector3 = Vector3(INF, INF, INF)
 
 
 func _ready() -> void:
-	主角 = get_node("../主角") as Node3D
+	主角 = get_node_or_null("../主角") as Node3D
 	if 主角:
 		print("[相机] 已锁定目标: ", 主角.name)
 		# 固定俯视角，不再随主角旋转

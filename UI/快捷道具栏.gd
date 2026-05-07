@@ -7,15 +7,15 @@ const 间距 := 4
 
 
 func _ready() -> void:
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_构建界面()
 
 
 func _构建界面() -> void:
 	var 总宽 = 格子数 * 图标尺寸 + (格子数 - 1) * 间距
-	var 起始X = (get_viewport_rect().size.x - 总宽) / 2.0
 
 	var 背景 = Panel.new()
-	背景.position = Vector2(起始X - 8, 8)
+	背景.position = Vector2(0, 0)
 	背景.size = Vector2(总宽 + 16, 图标尺寸 + 16)
 	var 样式 = StyleBoxFlat.new()
 	样式.bg_color = Color(0.05, 0.05, 0.06, 0.7)
@@ -28,7 +28,7 @@ func _构建界面() -> void:
 
 	for i in range(格子数):
 		var 格子 = _创建格子(i)
-		格子.position = Vector2(起始X + i * (图标尺寸 + 间距), 16)
+		格子.position = Vector2(8 + i * (图标尺寸 + 间距), 8)
 		add_child(格子)
 
 
@@ -96,6 +96,6 @@ func _刷新() -> void:
 
 
 func _process(_delta: float) -> void:
-	# 动态居中
-	var 总宽 = 格子数 * 图标尺寸 + (格子数 - 1) * 间距
-	position = Vector2((get_viewport_rect().size.x - 总宽) / 2.0 - 8, get_viewport_rect().size.y - 图标尺寸 - 32)
+	var 总宽 = 格子数 * 图标尺寸 + (格子数 - 1) * 间距 + 16
+	var 视口 = get_viewport_rect().size
+	position = Vector2((视口.x - 总宽) / 2.0, 视口.y - 图标尺寸 - 24)

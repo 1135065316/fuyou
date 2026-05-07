@@ -1,13 +1,12 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://场景/副本场景.gd" id="1_fuben"]
 [ext_resource type="Script" path="res://系统/游戏管理器.gd" id="2_youxi"]
 [ext_resource type="Script" path="res://系统/房间管理器.gd" id="3_fangjian"]
 [ext_resource type="Script" path="res://系统/敌人生成器.gd" id="4_diren"]
-[ext_resource type="PackedScene" path="res://角色/主角/主角.tscn" id="5_zhujiao"]
-[ext_resource type="Script" path="res://测试场景/相机跟随.gd" id="6_xiangji"]
-[ext_resource type="Script" path="res://UI/小地图.gd" id="7_xiaoditu"]
-[ext_resource type="Script" path="res://UI/快捷道具栏.gd" id="8_kuaijie"]
+[ext_resource type="Script" path="res://测试场景/相机跟随.gd" id="5_xiangji"]
+[ext_resource type="Script" path="res://UI/小地图.gd" id="6_xiaoditu"]
+[ext_resource type="Script" path="res://UI/快捷道具栏.gd" id="7_kuaijie"]
 
 [sub_resource type="Environment" id="Environment_fuben"]
 ambient_light_source = 2
@@ -29,13 +28,10 @@ script = ExtResource("3_fangjian")
 [node name="敌人生成器" type="Node" parent="."]
 script = ExtResource("4_diren")
 
-[node name="主角" parent="." instance=ExtResource("5_zhujiao")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-
 [node name="主角相机" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 15, 12)
 current = true
-script = ExtResource("6_xiangji")
+script = ExtResource("5_xiangji")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -92,7 +88,7 @@ offset_right = -16.0
 offset_bottom = 180.0
 grow_horizontal = 0
 custom_minimum_size = Vector2(164, 164)
-script = ExtResource("7_xiaoditu")
+script = ExtResource("6_xiaoditu")
 
 [node name="快捷道具栏" type="Control" parent="UI"]
 layout_mode = 3
@@ -105,4 +101,4 @@ offset_top = -60.0
 offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 0
-script = ExtResource("8_kuaijie")
+script = ExtResource("7_kuaijie")

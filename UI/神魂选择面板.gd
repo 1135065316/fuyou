@@ -24,20 +24,21 @@ func _构建界面() -> void:
 	标题.add_theme_color_override("font_color", Color(0.9, 0.75, 0.3))
 	标题.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	标题.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	标题.position = Vector2(0, 80)
-	标题.size = Vector2(0, 40)
+	标题.offset_top = 80
+	标题.offset_bottom = 120
 	add_child(标题)
+
+	var 中心容器 = CenterContainer.new()
+	中心容器.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(中心容器)
 
 	var 容器 = HBoxContainer.new()
 	容器.alignment = BoxContainer.ALIGNMENT_CENTER
-	容器.set_anchors_preset(Control.PRESET_CENTER)
-	容器.position = Vector2(0, -100)
-	容器.size = Vector2(0, 360)
 	容器.add_theme_constant_override("separation", 50)
-	add_child(容器)
+	中心容器.add_child(容器)
 
 
-func 显示三选一(组件: Node) -> void:
+func 显示三选一(组件: Node = null) -> void:
 	装备组件引用 = 组件
 	候选神魂.clear()
 
@@ -55,7 +56,6 @@ func 显示三选一(组件: Node) -> void:
 
 	_刷新卡片()
 	visible = true
-	get_tree().paused = true
 
 
 func _获取神魂池() -> Array[Dictionary]:
@@ -73,7 +73,9 @@ func _获取神魂池() -> Array[Dictionary]:
 
 
 func _刷新卡片() -> void:
-	var 容器 = get_child(2)
+	var 容器 = get_child(2).get_child(0) if get_child_count() > 2 else null
+	if 容器 == null:
+		return
 	for c in 容器.get_children():
 		c.queue_free()
 
@@ -141,6 +143,5 @@ func _on_选择(索引: int) -> void:
 	var 选中 = 候选神魂[索引]
 	if 装备组件引用:
 		装备组件引用.装备神魂(选中)
-	get_tree().paused = false
 	visible = false
 	选择完成.emit(选中)
