@@ -4,7 +4,6 @@ extends Label3D
 
 func _ready() -> void:
 	billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	pixel_size = 0.015
 
 
 func _process(_delta: float) -> void:
