@@ -16,11 +16,13 @@ const 图标尺寸 := 52
 var _按下: bool = false
 var _按下位置: Vector2
 const _拖拽阈值: float = 8.0
+var _启用拖拽: bool = true
 
 
-func _init(图标标识: String = "", 图标大小: int = 52) -> void:
+func _init(图标标识: String = "", 图标大小: int = 52, 快捷键角标: String = "", 启用拖拽: bool = true) -> void:
   标识 = 图标标识
   size = Vector2(图标大小, 图标大小)
+  _启用拖拽 = 启用拖拽
   mouse_filter = Control.MOUSE_FILTER_STOP
   mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
@@ -59,6 +61,18 @@ func _init(图标标识: String = "", 图标大小: int = 52) -> void:
   文字标签.text = "(空)"
   add_child(文字标签)
 
+  if not 快捷键角标.is_empty():
+    var 快捷键标签 = Label.new()
+    快捷键标签.name = "Hotkey"
+    快捷键标签.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    快捷键标签.position = Vector2(图标大小 - 16, 2)
+    快捷键标签.size = Vector2(14, 12)
+    快捷键标签.text = 快捷键角标
+    快捷键标签.add_theme_font_size_override("font_size", 9)
+    快捷键标签.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+    快捷键标签.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+    add_child(快捷键标签)
+
 
 func refresh显示(装备实例: Resource = null, 默认文字: String = "(空)") -> void:
   装备引用 = 装备实例
@@ -91,7 +105,7 @@ func _gui_input(event: InputEvent) -> void:
           点击.emit(self)
         _按下 = false
 
-  elif event is InputEventMouseMotion and _按下:
+  elif _启用拖拽 and event is InputEventMouseMotion and _按下:
     if get_global_mouse_position().distance_to(_按下位置) > _拖拽阈值:
       _按下 = false
       _启动拖拽()
