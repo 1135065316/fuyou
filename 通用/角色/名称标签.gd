@@ -7,4 +7,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	global_position = get_parent().global_position + 偏移
+	var 父节点 = get_parent()
+	if 父节点 == null:
+		return
+	global_position = 父节点.global_position + 偏移

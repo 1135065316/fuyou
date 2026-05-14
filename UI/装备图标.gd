@@ -2,6 +2,7 @@ extends Control
 class_name 装备图标
 
 signal 点击(图标: Control)
+signal 右键(图标: Control)
 
 var 标识: String = ""
 var 装备引用: Resource = null
@@ -104,6 +105,9 @@ func _gui_input(event: InputEvent) -> void:
         if _按下:
           点击.emit(self)
         _按下 = false
+    elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+      if 装备引用 != null:
+        右键.emit(self)
 
   elif _启用拖拽 and event is InputEventMouseMotion and _按下:
     if get_global_mouse_position().distance_to(_按下位置) > _拖拽阈值:
@@ -144,7 +148,7 @@ func _创建拖拽预览() -> Control:
 
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-  return data is Dictionary and data.has("equipment") and data["icon"] != self
+  return data is Dictionary and data.has("equipment") and data.has("icon") and data["icon"] != self
 
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:

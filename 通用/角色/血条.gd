@@ -20,6 +20,11 @@ func _on_受伤(_伤害值: int) -> void:
   _更新血条()
 
 
+func 设置填充色(颜色: Color) -> void:
+  填充色 = 颜色
+  _更新血条()
+
+
 func _更新血条() -> void:
   var 图像 := Image.create(条宽, 条高, false, Image.FORMAT_RGBA8)
   图像.fill(Color(0.2, 0.05, 0.05, 1.0))

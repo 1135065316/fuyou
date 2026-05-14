@@ -28,6 +28,15 @@ func _ready() -> void:
   _刷新技能()
 
 
+func _exit_tree() -> void:
+  if 装备组件节点 and 装备组件节点.has_signal("装备变更"):
+    if 装备组件节点.装备变更.is_connected(_on_装备变更):
+      装备组件节点.装备变更.disconnect(_on_装备变更)
+  if 神魂组件节点 and 神魂组件节点.has_signal("神魂变更"):
+    if 神魂组件节点.神魂变更.is_connected(_on_神魂变更):
+      神魂组件节点.神魂变更.disconnect(_on_神魂变更)
+
+
 func _on_装备变更(_部位: int, _新装备: Resource, _旧装备: Resource) -> void:
   _刷新技能()
 
@@ -62,7 +71,7 @@ func _获取技能配置(技能ID: String) -> Dictionary:
     return {"id": 技能ID, "倍率": 1.0, "特效": ""}
 
   var Jsonc工具 = load("res://公共/jsonc工具.gd")
-  var 行 := Jsonc工具.查找行(技能池数据, "skill_id", 技能ID)
+  var 行: Dictionary = Jsonc工具.查找行(技能池数据, "skill_id", 技能ID)
   if 行.is_empty():
     return {"id": 技能ID, "倍率": 1.0, "特效": ""}
 
@@ -130,7 +139,7 @@ func 获取技能列表_by_category(分类: String) -> Array[Dictionary]:
 
 func 获取法术配置(技能ID: String) -> Dictionary:
   var Jsonc工具 = load("res://公共/jsonc工具.gd")
-  var 行 := Jsonc工具.查找行(技能池数据, "skill_id", 技能ID)
+  var 行: Dictionary = Jsonc工具.查找行(技能池数据, "skill_id", 技能ID)
   if 行.is_empty() or 行.get("category", "") != "法术":
     return {}
 

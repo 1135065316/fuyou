@@ -2,7 +2,7 @@ extends Control
 class_name 小地图
 
 var 楼层图: Array = []
-var 当前房间 = null
+var 当前房间: Variant = null
 var 大地图模式 := false
 var 显示中心: Vector2 = Vector2.ZERO
 
@@ -30,6 +30,7 @@ func _input(event: InputEvent) -> void:
     大地图模式 = not 大地图模式
     _更新布局()
     queue_redraw()
+    get_viewport().set_input_as_handled()
 
 
 func _process(delta: float) -> void:

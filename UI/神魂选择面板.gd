@@ -49,6 +49,9 @@ func 显示三选一(组件: Node = null) -> void:
 	候选神魂.clear()
 
 	var 神魂脚本 = load("res://通用/装备/神魂.gd")
+	if 神魂脚本 == null:
+		push_error("[神魂选择面板] 无法加载神魂脚本")
+		return
 	var 池数据 = _获取神魂池()
 	var 凡品池 = 池数据.filter(func(行): return int(行.get("tier", 0)) == 0 and 行.get("enemy_template", "") == "主角")
 

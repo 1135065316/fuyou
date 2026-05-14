@@ -44,6 +44,9 @@ func 恢复副本状态(目标场景: Node) -> Node3D:
 		return null
 
 	var 主角场景: PackedScene = load("res://角色/主角/主角.tscn")
+	if 主角场景 == null:
+		push_error("[全局状态] 无法加载主角场景")
+		return null
 	var 主角 = 主角场景.instantiate()
 	主角.name = "主角"
 	目标场景.add_child(主角)

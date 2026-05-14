@@ -21,8 +21,8 @@ static func _自加载() -> Script:
 	return load("res://通用/装备/神魂.gd")
 
 
-static func 从模板行创建(行: Dictionary) -> Resource:
-	var 新神魂: Resource = _自加载().new()
+static func 从模板行创建(行: Dictionary) -> 神魂:
+	var 新神魂: 神魂 = _自加载().new()
 	新神魂.池ID = 行.get("pool_id", "")
 	新神魂.名称 = 行.get("name", "")
 	新神魂.品级索引 = int(行.get("tier", 0))
@@ -31,7 +31,10 @@ static func 从模板行创建(行: Dictionary) -> Resource:
 	新神魂.基础属性名 = 行.get("base_affix_type", "")
 	var 最小值: int = int(行.get("base_affix_min", 0))
 	var 最大值: int = int(行.get("base_affix_max", 0))
-	新神魂.基础属性值 = randi_range(最小值, 最大值)
+	if 最小值 <= 最大值:
+		新神魂.基础属性值 = randi_range(最小值, 最大值)
+	else:
+		新神魂.基础属性值 = 最大值
 	新神魂.描述 = 行.get("description", "")
 	return 新神魂
 
@@ -89,6 +92,24 @@ func 获取品级颜色() -> String:
 	if 品级索引 >= 0 and 品级索引 < 品级颜色.size():
 		return 品级颜色[品级索引]
 	return "#9d9d9d"
+
+
+func 获取部位名() -> String:
+	return "神魂"
+
+
+func 获取词条显示文本() -> String:
+	var 文本 := ""
+	if not 基础属性名.is_empty():
+		var 符号 := "+" if 基础属性值 >= 0 else ""
+		文本 += "%s%d %s\n" % [符号, 基础属性值, 基础属性名]
+	if not 描述.is_empty():
+		文本 += "%s\n" % 描述
+	if not 普攻技能ID.is_empty():
+		文本 += "普攻: %s\n" % 普攻技能ID
+	if not 大招技能ID.is_empty():
+		文本 += "大招: %s\n" % 大招技能ID
+	return 文本.strip_edges()
 
 
 func 系列化() -> Dictionary:

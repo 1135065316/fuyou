@@ -2,15 +2,20 @@ extends Control
 class_name 装备栏UI
 
 const 图标类 = preload("res://UI/装备图标.gd")
+const 神魂脚本 = preload("res://通用/装备/神魂.gd")
+const 装备脚本 = preload("res://通用/装备/装备.gd")
 
 signal 面板关闭
 
 var 装备组件引用: Node = null
+var 面板引用: Panel = null
 var 属性标签: Label
 var 当前选中图标: Control = null
 var 选中高亮: ColorRect
 var 详情面板: Panel
 var 详情文本: RichTextLabel
+var 背包背景: ColorRect = null
+var _背包背景绘制回调: Callable
 
 var 槽图标列表: Array[Control] = []
 var 物品图标列表: Array[Control] = []
@@ -38,6 +43,7 @@ func _构建界面() -> void:
   add_child(全屏背景)
 
   var 面板 := Panel.new()
+  面板引用 = 面板
   面板.position = Vector2(100, 50)
   面板.size = Vector2(840, 580)
   var 面板样式 := StyleBoxFlat.new()
@@ -154,19 +160,19 @@ func _构建界面() -> void:
   var 网格宽 := 背包列数 * 图标尺寸 + (背包列数 - 1) * 图标间距
   var 网格高 := 背包行数 * 图标尺寸 + (背包行数 - 1) * 图标间距
 
-  var 背包背景 := ColorRect.new()
+  背包背景 = ColorRect.new()
   背包背景.position = Vector2(背包起始X, 72)
   背包背景.size = Vector2(网格宽 + 8, 网格高 + 8)
   背包背景.color = Color(0.04, 0.04, 0.05, 1)
   面板.add_child(背包背景)
-  背包背景.draw.connect(func():
+  _背包背景绘制回调 = func():
     for col in range(1, 背包列数):
       var x: int = col * (图标尺寸 + 图标间距) + 4
       背包背景.draw_line(Vector2(x, 0), Vector2(x, 背包背景.size.y), Color(0.1, 0.1, 0.12), 1)
     for row in range(1, 背包行数):
       var y: int = row * (图标尺寸 + 图标间距) + 4
       背包背景.draw_line(Vector2(0, y), Vector2(背包背景.size.x, y), Color(0.1, 0.1, 0.12), 1)
-  )
+  背包背景.draw.connect(_背包背景绘制回调)
 
   var 物品容器 := Control.new()
   物品容器.name = "物品容器"
@@ -217,6 +223,11 @@ func _构建界面() -> void:
   面板.add_child(丢弃提示)
 
 
+func _exit_tree() -> void:
+  if _背包背景绘制回调.is_valid():
+    背包背景.draw.disconnect(_背包背景绘制回调)
+
+
 func _gui_input(event: InputEvent) -> void:
   if event is InputEventMouseButton:
     if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -228,6 +239,7 @@ func _创建图标(父节点: Node, 位置: Vector2, 标识: String) -> Control:
   var 图标 := 图标类.new(标识, 图标尺寸)
   图标.position = 位置
   图标.点击.connect(_on_图标点击)
+  图标.右键.connect(_on_图标右键)
   父节点.add_child(图标)
   return 图标
 
@@ -249,13 +261,17 @@ func _处理拖放(目标标识: String, data: Dictionary) -> void:
     return
 
   if 目标标识.begins_with("slot:"):
-    var 部位: int = int(目标标识.split(":")[1])
+    var 目标分割 = 目标标识.split(":")
+    if 目标分割.size() < 2: return
+    var 部位: int = int(目标分割[1])
     if src.begins_with("bag:"):
       if 装备组件引用.当前装备.has(部位):
         装备组件引用.卸下(部位)
       装备组件引用.穿戴(eq)
     elif src.begins_with("slot:"):
-      var 旧部位: int = int(src.split(":")[1])
+      var 源分割 = src.split(":")
+      if 源分割.size() < 2: return
+      var 旧部位: int = int(源分割[1])
       if 旧部位 != 部位:
         装备组件引用.卸下(旧部位)
         if 装备组件引用.当前装备.has(部位):
@@ -263,17 +279,25 @@ func _处理拖放(目标标识: String, data: Dictionary) -> void:
         装备组件引用.穿戴(eq)
 
   elif 目标标识.begins_with("bag:"):
-    var 目标索引: int = int(目标标识.split(":")[1])
+    var 目标分割 = 目标标识.split(":")
+    if 目标分割.size() < 2: return
+    var 目标索引: int = int(目标分割[1])
     if src.begins_with("slot:"):
-      var 部位: int = int(src.split(":")[1])
+      var 源分割 = src.split(":")
+      if 源分割.size() < 2: return
+      var 部位: int = int(源分割[1])
       装备组件引用.卸下到背包(部位, 目标索引)
     elif src.begins_with("bag:"):
-      var 源索引: int = int(src.split(":")[1])
+      var 源分割 = src.split(":")
+      if 源分割.size() < 2: return
+      var 源索引: int = int(源分割[1])
       装备组件引用.交换背包格子(源索引, 目标索引)
 
   elif 目标标识 == "soul":
     if src.begins_with("bag:"):
-      var 索引: int = int(src.split(":")[1])
+      var 源分割 = src.split(":")
+      if 源分割.size() < 2: return
+      var 索引: int = int(源分割[1])
       var 物品 = 装备组件引用.背包[索引]
       if 物品 != null and 装备组件引用.是神魂(物品):
         装备组件引用.装备神魂(物品)
@@ -316,13 +340,14 @@ func _显示详情面板(图标: Control, eq: Resource) -> void:
     颜色, eq.名称, eq.获取品级名(), eq.获取部位名(), eq.获取词条显示文本()
   ]
 
-  var 面板 := get_child(1)
-  var 图标相对位置: Vector2 = 图标.global_position - 面板.global_position
+  if 面板引用 == null:
+    return
+  var 图标相对位置: Vector2 = 图标.global_position - 面板引用.global_position
   var 目标位置 := 图标相对位置 + Vector2(图标尺寸 + 8, 0)
-  if 目标位置.x + 详情面板.size.x > 面板.size.x:
+  if 目标位置.x + 详情面板.size.x > 面板引用.size.x:
     目标位置.x = 图标相对位置.x - 详情面板.size.x - 8
-  if 目标位置.y + 详情面板.size.y > 面板.size.y:
-    目标位置.y = 面板.size.y - 详情面板.size.y - 8
+  if 目标位置.y + 详情面板.size.y > 面板引用.size.y:
+    目标位置.y = 面板引用.size.y - 详情面板.size.y - 8
   if 目标位置.y < 0:
     目标位置.y = 0
 
@@ -343,10 +368,13 @@ func _on_图标右键(图标: Control) -> void:
   elif 标识 == "soul":
     return
   elif 标识.begins_with("bag:"):
-    var 部位: int = eq.部位索引
-    if 装备组件引用.当前装备.has(部位):
-      装备组件引用.卸下(部位)
-    装备组件引用.穿戴(eq)
+    if 装备组件引用.是神魂(eq):
+      装备组件引用.装备神魂(eq)
+    else:
+      var 部位: int = eq.部位索引
+      if 装备组件引用.当前装备.has(部位):
+        装备组件引用.卸下(部位)
+      装备组件引用.穿戴(eq)
     _清除选中()
     _刷新全部()
   elif 标识 == "combine:A":
@@ -357,10 +385,11 @@ func _on_图标右键(图标: Control) -> void:
 
 func _选中图标(图标: Control, eq: Resource) -> void:
   当前选中图标 = 图标
-  var 面板 := get_child(1)
+  if 面板引用 == null:
+    return
   if 选中高亮.get_parent():
     选中高亮.get_parent().remove_child(选中高亮)
-  面板.add_child(选中高亮)
+  面板引用.add_child(选中高亮)
   选中高亮.global_position = 图标.global_position
   选中高亮.visible = (eq != null)
 
@@ -394,8 +423,9 @@ func _刷新装备槽() -> void:
 
 
 func _刷新背包() -> void:
-  var 面板 := get_child(1)
-  var 物品容器 := 面板.get_node_or_null("物品容器")
+  if 面板引用 == null:
+    return
+  var 物品容器 := 面板引用.get_node_or_null("物品容器")
   if not 物品容器:
     return
   for c in 物品容器.get_children():
@@ -432,19 +462,20 @@ func _设置合成槽(eq: Resource, 槽位: String) -> void:
 
 
 func _刷新合成栏() -> void:
-  var 面板 := get_child(1)
+  if 面板引用 == null:
+    return
   var 合成按钮: Button = null
-  for c in 面板.get_children():
+  for c in 面板引用.get_children():
     if c is Button and c.text == "合 成":
       合成按钮 = c
       break
-  var 合成状态 := 面板.get_node_or_null("合成状态") as Label
+  var 合成状态 := 面板引用.get_node_or_null("合成状态") as Label
   var 可合成 := false
   if _合成槽A and _合成槽B:
     if 装备组件引用 and 装备组件引用.has_method("是神魂") and 装备组件引用.是神魂(_合成槽A):
-      可合成 = 神魂.能否合成(_合成槽A, _合成槽B)
+      可合成 = 神魂脚本.能否合成(_合成槽A, _合成槽B)
     else:
-      可合成 = 装备.能否合成(_合成槽A, _合成槽B)
+      可合成 = 装备脚本.能否合成(_合成槽A, _合成槽B)
   if 合成按钮:
     合成按钮.disabled = not 可合成
   if 合成状态:
@@ -465,9 +496,9 @@ func _执行合成() -> void:
 
   var 是神魂合成: bool = 装备组件引用 != null and 装备组件引用.has_method("是神魂") and 装备组件引用.是神魂(_合成槽A)
   if 是神魂合成:
-    if not 神魂.能否合成(_合成槽A, _合成槽B):
+    if not 神魂脚本.能否合成(_合成槽A, _合成槽B):
       return
-    var 结果 = 神魂.执行合成(_合成槽A, _合成槽B)
+    var 结果 = 神魂脚本.执行合成(_合成槽A, _合成槽B)
     if 结果 and 装备组件引用:
       for i in range(装备组件引用.背包.size()):
         if 装备组件引用.背包[i] == null:
@@ -475,9 +506,9 @@ func _执行合成() -> void:
           装备组件引用.背包变更.emit()
           break
   else:
-    if not 装备.能否合成(_合成槽A, _合成槽B):
+    if not 装备脚本.能否合成(_合成槽A, _合成槽B):
       return
-    装备.执行合成(_合成槽A, _合成槽B)
+    装备脚本.执行合成(_合成槽A, _合成槽B)
 
   if 装备组件引用:
     for i in range(装备组件引用.背包.size()):

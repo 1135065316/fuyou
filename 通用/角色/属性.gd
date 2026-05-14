@@ -122,7 +122,7 @@ func _physics_process(delta: float) -> void:
 
 
 func 受伤(伤害值: int) -> bool:
-  if _无敌倒计时 > 0:
+  if 已死亡 or _无敌倒计时 > 0:
     return false
   var 旧气血 := 气血
   气血 = maxi(0, 气血 - 伤害值)
@@ -152,12 +152,13 @@ func _on_死亡() -> void:
     get_parent().visible = false
     return
   await get_tree().create_timer(0.5).timeout
-  get_parent().queue_free()
+  if is_instance_valid(get_parent()):
+    get_parent().queue_free()
 
 
 func 降级() -> void:
   if 境界 > 0:
-    境界 -= 1
+    境界 = (境界 - 1) as 境界等级
     气血上限 = int(气血上限 / 1.5)
   修为 = 0
   寿元上限 = 境界寿元[境界]

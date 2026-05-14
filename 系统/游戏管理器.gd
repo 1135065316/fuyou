@@ -28,12 +28,12 @@ const 掉落最低伤害 := 1
 
 
 func _ready() -> void:
-  房间管理器节点 = get_node("../房间管理器")
-  敌人生成器节点 = get_node("../敌人生成器")
-  房间信息标签 = get_node("../UI/房间信息")
-  结束面板 = get_node("../UI/结束面板")
-  结束标题 = get_node("../UI/结束面板/VBoxContainer/标题")
-  小地图节点 = get_node_or_null("../UI/小地图")
+  房间管理器节点 = get_node_or_null("../房间管理器")
+  敌人生成器节点 = get_node_or_null("../敌人生成器")
+  房间信息标签 = get_node_or_null("../UI/房间信息") as Label
+  结束面板 = get_node_or_null("../UI/结束面板") as Control
+  结束标题 = get_node_or_null("../UI/结束面板/VBoxContainer/标题") as Label
+  小地图节点 = get_node_or_null("../UI/小地图") as Control
 
   var 重新开始按钮: Button = get_node_or_null("../UI/结束面板/VBoxContainer/重新开始")
   if 重新开始按钮:
@@ -119,7 +119,9 @@ func _on_初始神魂选择完成(选中神魂: Resource, 面板: Control) -> vo
   主角实例.name = "主角"
   get_parent().add_child(主角实例)
   主角实例.add_to_group("玩家")
-  主角实例.get_node("属性").死亡信号.connect(_on_主角死亡)
+  var 初始属性节点 = 主角实例.get_node("属性")
+  if not 初始属性节点.死亡信号.is_connected(_on_主角死亡):
+    初始属性节点.死亡信号.connect(_on_主角死亡)
 
   # 装备选中的神魂
   if 选中神魂:
@@ -161,6 +163,9 @@ func _添加大厅门(房间根: Node3D) -> void:
   if 房间根 == null:
     return
   var 数据 = 房间管理器节点.当前房间数据
+  if 数据 == null or 数据.is_empty():
+    push_error("[游戏管理器] 当前房间数据为空，无法添加大厅门")
+    return
   var size_x = 数据.get("size_x", 8)
   var size_z = 数据.get("size_z", 8)
   var 门位置 = Vector3(size_x / 2.0 + 0.5, 0.5, size_z - 0.5)
@@ -331,7 +336,9 @@ func _切换到房间(目标节点, 进入方向: String) -> void:
     var 敌人列表: Array = 敌人生成器节点.生成敌人(房间管理器节点.当前房间, 当前层数)
     for 敌人 in 敌人列表:
       if 敌人.has_node("属性"):
-        敌人.get_node("属性").死亡信号.connect(_on_敌人死亡)
+        var 敌人属性 = 敌人.get_node("属性")
+        if not 敌人属性.死亡信号.is_connected(_on_敌人死亡):
+          敌人属性.死亡信号.connect(_on_敌人死亡)
     if 敌人列表.size() > 0:
       _切换状态(游戏状态.战斗进行中)
       _关闭当前房间门()
@@ -486,8 +493,9 @@ func _on_主角死亡() -> void:
   _切换状态(游戏状态.失败)
   _显示结束面板("道友陨落")
 
-  var 属性节点 = 主角实例.get_node("属性")
-  属性节点.降级()
+  var 属性节点 = 主角实例.get_node_or_null("属性")
+  if 属性节点:
+    属性节点.降级()
 
   var 所有物品: Array = []
   var 装备节点 = 主角实例.get_node_or_null("装备组件")
@@ -519,6 +527,8 @@ func _on_主角死亡() -> void:
 
   await get_tree().create_timer(2.0).timeout
 
+  if not is_instance_valid(主角实例):
+    return
   if 当前状态 != 游戏状态.失败:
     return
 
@@ -547,7 +557,11 @@ func _on_主角死亡() -> void:
 
 
 func _喷发掉落物(物品实例: Resource, 起点: Vector3, 父节点: Node) -> Node3D:
-  var 掉落 = 掉落物生成器.生成掉落物(物品实例, 起点, 父节点)
+  var 掉落生成器 = load("res://公共/掉落物生成器.gd")
+  if 掉落生成器 == null:
+    push_error("[游戏管理器] 无法加载掉落物生成器")
+    return null
+  var 掉落 = 掉落生成器.生成掉落物(物品实例, 起点, 父节点)
   if 掉落 == null: return null
   掉落.position = 起点
 
@@ -582,6 +596,8 @@ func _on_神魂选择完成_保留主角(选中神魂: Resource, 面板: Control
 
 
 func _清理临时物品() -> void:
+  if not is_instance_valid(主角实例):
+    return
   var 装备节点 = 主角实例.get_node_or_null("装备组件")
   if 装备节点 == null: return
 
@@ -678,6 +694,8 @@ func _process(_delta: float) -> void:
 
 
 func _处理掉落() -> void:
+  if not is_instance_valid(主角实例) or not 主角实例.has_node("属性"):
+    return
   var 主角属性 = 主角实例.get_node("属性")
   var 伤害值 := maxi(掉落最低伤害, int(主角属性.气血上限 * 掉落伤害比例))
   主角属性.受伤(伤害值)

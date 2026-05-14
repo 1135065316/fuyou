@@ -70,7 +70,7 @@ func _刷新() -> void:
   if 装备组件引用 == null:
     return
   for i in range(格子数):
-    var 格子 = get_child(i + 1)
+    var 格子 = get_child(i + 2)
     if 格子 == null or not 格子.has_method("refresh显示"):
       continue
     if i < 装备组件引用.背包.size():

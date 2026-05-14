@@ -34,8 +34,8 @@ static func _自加载() -> Script:
 	return load("res://通用/装备/装备.gd")
 
 
-static func 从模板行创建(行: Dictionary) -> Resource:
-	var 新装备: Resource = _自加载().new()
+static func 从模板行创建(行: Dictionary) -> 装备:
+	var 新装备: 装备 = _自加载().new()
 	新装备.池ID = 行.get("pool_id", "")
 	新装备.名称 = 行.get("name", "")
 	新装备.部位索引 = int(行.get("slot", 0))
@@ -43,16 +43,21 @@ static func 从模板行创建(行: Dictionary) -> Resource:
 	新装备.基础属性名 = 行.get("base_affix_type", "")
 	新装备.基础属性最小值 = int(行.get("base_affix_min", 0))
 	新装备.基础属性最大值 = int(行.get("base_affix_max", 0))
-	新装备.基础属性值 = randi_range(新装备.基础属性最小值, 新装备.基础属性最大值)
+	if 新装备.基础属性最小值 <= 新装备.基础属性最大值:
+		新装备.基础属性值 = randi_range(新装备.基础属性最小值, 新装备.基础属性最大值)
+	else:
+		新装备.基础属性值 = 新装备.基础属性最大值
 	新装备.描述 = 行.get("description", "")
 
 	var 普通词条JSON: String = 行.get("normal_affixes", "[]")
 	var 解析结果: Variant = JSON.parse_string(普通词条JSON)
 	if 解析结果 != null and 解析结果 is Array:
 		for 条目 in 解析结果:
+			if not (条目 is Dictionary):
+				continue
 			var 最小: int = int(条目.get("min", 0))
 			var 最大: int = int(条目.get("max", 0))
-			var 值 := randi_range(最小, 最大)
+			var 值: int = 最小 if 最小 > 最大 else randi_range(最小, 最大)
 			新装备.普通词条.append({
 				"属性名": 条目.get("type", ""),
 				"值": 值,
@@ -158,9 +163,11 @@ static func 能否合成(a: Resource, b: Resource) -> bool:
 	return a.池ID == b.池ID and a.品级索引 == b.品级索引 and a.部位索引 == b.部位索引
 
 
-static func 执行合成(基底: Resource, 材料: Resource) -> Resource:
+static func 执行合成(基底: Resource, 材料: Resource) -> 装备:
 	assert(基底 != null and 材料 != null)
 	assert(能否合成(基底, 材料))
+
+	var 结果: 装备 = 基底.duplicate()
 
 	var 可选项: Array[Dictionary] = []
 
@@ -205,7 +212,7 @@ static func 执行合成(基底: Resource, 材料: Resource) -> Resource:
 			var 旧值: int = 选中["当前值"]
 			var 翻倍上限: int = 选中["最大值"] * 2
 			var 新值 := randi_range(旧值 + 1, mini(翻倍上限, 旧值 * 2))
-			基底.基础属性值 = 新值
+			结果.基础属性值 = 新值
 			print("[装备] 合成强化 基础属性[%s]: %d -> %d" % [选中["属性名"], 旧值, 新值])
 
 		"普通词条":
@@ -213,17 +220,17 @@ static func 执行合成(基底: Resource, 材料: Resource) -> Resource:
 			var 旧值: int = 选中["当前值"]
 			var 翻倍上限: int = 选中["最大值"] * 2
 			var 新值 := randi_range(旧值 + 1, mini(翻倍上限, 旧值 * 2))
-			基底.普通词条[索引]["值"] = 新值
+			结果.普通词条[索引]["值"] = 新值
 			print("[装备] 合成强化 普通词条[%s]: %d -> %d" % [选中["属性名"], 旧值, 新值])
 
 		"技能":
 			var 索引: int = 选中["index"]
 			var 旧CD: float = 选中["当前cooldown"]
 			var 新CD := maxf(1.0, 旧CD * 0.85)
-			基底.技能列表[索引]["cooldown"] = 新CD
+			结果.技能列表[索引]["cooldown"] = 新CD
 			print("[装备] 合成强化 技能[%s] CD: %.1f -> %.1f" % [选中["属性名"], 旧CD, 新CD])
 
-	return 基底
+	return 结果
 
 
 func 系列化() -> Dictionary:

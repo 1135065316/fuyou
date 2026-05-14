@@ -3,6 +3,7 @@ class_name 装备组件
 
 # preload 用于运行时调用静态方法，避免 class_name 循环依赖
 const 装备脚本 = preload("res://通用/装备/装备.gd")
+const 神魂脚本 = preload("res://通用/装备/神魂.gd")
 const 冷却脚本 = preload("res://通用/装备/技能冷却.gd")
 
 signal 装备变更(部位: int, 新装备: Resource, 旧装备: Resource)
@@ -49,8 +50,9 @@ func _应用装备属性(装备实例: Resource, 添加: bool) -> void:
 	var 系数 := 1 if 添加 else -1
 	for 属性名 in 加成.keys():
 		var 值: int = 加成[属性名]
-		if 属性名 in 属性节点:
-			属性节点.set(属性名, 属性节点.get(属性名) + 值 * 系数)
+		var 当前值 = 属性节点.get(属性名)
+		if 当前值 != null:
+			属性节点.set(属性名, 当前值 + 值 * 系数)
 	属性变更.emit()
 
 
@@ -59,9 +61,9 @@ func 穿戴(装备实例: Resource) -> bool:
 		return false
 
 	var 部位: int = 装备实例.部位索引
+	var 旧装备: Resource = 当前装备.get(部位)
 
-	if 当前装备.has(部位):
-		var 旧装备: Resource = 当前装备[部位]
+	if 旧装备 != null:
 		_应用装备属性(旧装备, false)
 		技能冷却节点.重置部位(部位)
 		var 空位: int = _找第一个空背包位()
@@ -72,7 +74,7 @@ func 穿戴(装备实例: Resource) -> bool:
 	当前装备[部位] = 装备实例
 	_应用装备属性(装备实例, true)
 	技能冷却节点.重置部位(部位)
-	装备变更.emit(部位, 装备实例, 当前装备.get(部位))
+	装备变更.emit(部位, 装备实例, 旧装备)
 
 	for i in range(背包.size()):
 		if 背包[i] == 装备实例:
@@ -198,7 +200,7 @@ func 获取显示装备列表() -> Array:
 
 
 func 是神魂(物品: Resource) -> bool:
-	return 物品 != null and 物品.has_method("普攻技能ID")
+	return 物品 != null and 物品 is 神魂脚本
 
 
 func 装备神魂(神魂实例: Resource) -> bool:
@@ -227,7 +229,8 @@ func _应用神魂属性(神魂实例: Resource, 添加: bool) -> void:
 	var 系数 := 1 if 添加 else -1
 	if not 神魂实例.基础属性名.is_empty():
 		var 当前值 = 属性节点.get(神魂实例.基础属性名)
-		属性节点.set(神魂实例.基础属性名, 当前值 + 神魂实例.基础属性值 * 系数)
+		if 当前值 != null:
+			属性节点.set(神魂实例.基础属性名, 当前值 + 神魂实例.基础属性值 * 系数)
 	属性变更.emit()
 
 
@@ -322,13 +325,13 @@ func 反序列化(数据: Dictionary) -> void:
 			var 类型 = 条目.get("_type", "equip")
 			var 数据内容 = 条目.get("data", {})
 			if 类型 == "soul":
-				var 神魂脚本 = load("res://通用/装备/神魂.gd")
-				背包[i] = 神魂脚本.反系列化(数据内容)
+				var 神魂类 = load("res://通用/装备/神魂.gd")
+				背包[i] = 神魂类.反系列化(数据内容)
 			else:
 				背包[i] = 装备脚本.反系列化(数据内容)
 
 	var 神魂数据 = 数据.get("当前神魂", null)
 	if 神魂数据 != null:
-		var 神魂脚本 = load("res://通用/装备/神魂.gd")
-		当前神魂 = 神魂脚本.反系列化(神魂数据)
+		var 神魂类 = load("res://通用/装备/神魂.gd")
+		当前神魂 = 神魂类.反系列化(神魂数据)
 		_应用神魂属性(当前神魂, true)

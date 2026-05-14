@@ -3,7 +3,7 @@ extends CharacterBody3D
 const 装备脚本 = preload("res://通用/装备/装备.gd")
 
 @onready var 移动组件: Node = $移动
-@onready var 属性组件: Node = $属性
+@onready var 属性组件: 属性 = $属性
 @onready var 装备组件节点: Node = $装备组件
 @onready var 技能管理器节点: Node = $技能管理器
 
@@ -13,10 +13,14 @@ var _面板已打开 := false
 
 func _ready() -> void:
   print("[主角] 就绪")
-  $属性.角色模板 = "主角"
-  $属性.加载模板属性()
-  $名称标签.text = $属性.角色模板
-  移动组件.移速倍率 = 属性组件.获取身法移速倍率()
+  if 属性组件:
+    属性组件.角色模板 = "主角"
+    属性组件.加载模板属性()
+  var 名称标签节点 = get_node_or_null("名称标签")
+  if 名称标签节点:
+    名称标签节点.text = "主角"
+  if 移动组件 and 属性组件:
+    移动组件.移速倍率 = 属性组件.获取身法移速倍率()
   移动组件.启用重力 = true
 
   _初始化随机装备()
