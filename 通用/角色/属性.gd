@@ -148,8 +148,24 @@ func _on_死亡() -> void:
   print("[属性] ", get_parent().name, " 死亡")
   已死亡 = true
   get_parent().set_physics_process(false)
+  if get_parent().is_in_group("玩家"):
+    get_parent().visible = false
+    return
   await get_tree().create_timer(0.5).timeout
   get_parent().queue_free()
+
+
+func 降级() -> void:
+  if 境界 > 0:
+    境界 -= 1
+    气血上限 = int(气血上限 / 1.5)
+  修为 = 0
+  寿元上限 = 境界寿元[境界]
+  神识 = 境界神识[境界]
+  气血 = 气血上限
+  寿元 = 寿元上限
+  已死亡 = false
+  print("[属性] 境界跌落至：", 境界等级.keys()[境界])
 
 
 func 获取根骨倍率() -> float:

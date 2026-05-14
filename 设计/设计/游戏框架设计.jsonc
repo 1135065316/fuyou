@@ -142,6 +142,60 @@
       "width": 320,
       "height": 100,
       "content": "**传承 + 天道观察**\n\n- 死亡后世界残留传承\n- 多局元游戏视角"
+    },
+    {
+      "id": "n15",
+      "type": "markdown",
+      "x": 100,
+      "y": 1280,
+      "width": 320,
+      "height": 140,
+      "content": "**技能池 + 技能分类（含法术）**\n\n- `设计/数据/技能池.jsonc`\n- 普攻 / 大招 / 被动 / 法术 四分类\n- 新增法术：火球术、冰锥术、雷击术、治愈术、护盾术\n- 灵气消耗 + 施法距离"
+    },
+    {
+      "id": "n16",
+      "type": "markdown",
+      "x": 100,
+      "y": 1460,
+      "width": 320,
+      "height": 120,
+      "content": "**物品分类 + 物品池**\n\n- `设计/数据/物品池.jsonc`\n- 分类：装备 / 消耗品 / 功法\n- 装备类引用装备池，消耗品有血瓶\n- 功法含特殊属性加成"
+    },
+    {
+      "id": "n17",
+      "type": "markdown",
+      "x": 100,
+      "y": 1620,
+      "width": 320,
+      "height": 100,
+      "content": "**临时 / 永久物品**\n\n- 掉落物 60% 临时 / 40% 永久\n- 副本结束清理临时物品\n- 全局状态只保存永久物品"
+    },
+    {
+      "id": "n18",
+      "type": "markdown",
+      "x": 100,
+      "y": 1760,
+      "width": 320,
+      "height": 120,
+      "content": "**死亡掉落 + 复活**\n\n- 境界跌落 1 级\n- 火山喷发抛物线掉落动画\n- 初始房间复活 + 神魂三选一"
+    },
+    {
+      "id": "n19",
+      "type": "markdown",
+      "x": 100,
+      "y": 1920,
+      "width": 320,
+      "height": 120,
+      "content": "**Buff 系统**\n\n- `通用/角色/状态效果.gd`\n- 属性临时增减 / 永久增减\n- UI 快捷道具栏上方 buff 图标显示"
+    },
+    {
+      "id": "n20",
+      "type": "markdown",
+      "x": 100,
+      "y": 2080,
+      "width": 320,
+      "height": 100,
+      "content": "**术语表**\n\n- `设计/数据/术语表.jsonc`\n- 统一术语解释\n- 灵气、身法、劲力、神识等"
     }
   ],
   "connections": [
@@ -157,6 +211,16 @@
     { "id": "c7", "from": "n9", "to": "n10", "fromSide": "bottom", "toSide": "top" },
     { "id": "c10", "from": "n4", "to": "n13", "fromSide": "bottom", "toSide": "top" },
     { "id": "c11", "from": "n13", "to": "n14", "fromSide": "bottom", "toSide": "top" },
-    { "id": "c12", "from": "n14", "to": "n12", "fromSide": "right", "toSide": "left" }
+    { "id": "c12", "from": "n14", "to": "n12", "fromSide": "right", "toSide": "left" },
+    { "id": "c13", "from": "n14", "to": "n15", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c14", "from": "n15", "to": "n16", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c15", "from": "n16", "to": "n17", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c16", "from": "n17", "to": "n18", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c17", "from": "n18", "to": "n19", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c18", "from": "n19", "to": "n20", "fromSide": "bottom", "toSide": "top" },
+    { "id": "c19", "from": "n13", "to": "n15", "fromSide": "right", "toSide": "right" },
+    { "id": "c20", "from": "n12", "to": "n16", "fromSide": "left", "toSide": "top" },
+    { "id": "c21", "from": "n2", "to": "n19", "fromSide": "right", "toSide": "right" },
+    { "id": "c22", "from": "n14", "to": "n18", "fromSide": "right", "toSide": "right" }
   ]
 }

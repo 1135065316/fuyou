@@ -3,6 +3,8 @@ class_name 掉落物
 
 var 绑定的物品: Resource = null
 
+@export var 是否临时: bool = false
+
 @onready var 网格节点: MeshInstance3D = $网格
 @onready var 名称标签: Label3D = $名称标签
 @onready var 动画播放器: AnimationPlayer = $浮动动画
@@ -14,8 +16,14 @@ func 初始化(物品实例: Resource) -> void:
 	绑定的物品 = 物品实例
 	_初始Y = position.y
 
+	if "是否临时" in 物品实例:
+		是否临时 = 物品实例.是否临时
+
 	if 名称标签:
-		名称标签.text = 物品实例.名称
+		var 显示名称 = 物品实例.名称
+		if 是否临时:
+			显示名称 += "(临)"
+		名称标签.text = 显示名称
 
 	if 网格节点:
 		var 颜色 := Color.WHITE
@@ -27,7 +35,10 @@ func 初始化(物品实例: Resource) -> void:
 		var 材质 := StandardMaterial3D.new()
 		材质.albedo_color = 颜色
 		材质.emission_enabled = true
-		材质.emission = 颜色 * 0.3
+		if 是否临时:
+			材质.emission = Color.GRAY * 0.5
+		else:
+			材质.emission = 颜色 * 0.3
 		材质.emission_energy_multiplier = 0.5
 		网格节点.material_override = 材质
 

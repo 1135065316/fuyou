@@ -14,6 +14,7 @@ const 品级颜色: Array[String] = ["#9d9d9d", "#ffffff", "#ffd700", "#ff6b6b",
 @export var 基础属性名: String = ""
 @export var 基础属性值: int = 0
 @export var 描述: String = ""
+@export var 是否临时: bool = false
 
 
 static func _自加载() -> Script:

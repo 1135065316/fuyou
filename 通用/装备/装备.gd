@@ -26,6 +26,7 @@ const 品级颜色: Array[String] = ["#9d9d9d", "#ffffff", "#ffd700", "#ff6b6b",
 @export var 特殊词条: Array[String] = []
 @export var 技能列表: Array[Dictionary] = []
 @export var 描述: String = ""
+@export var 是否临时: bool = false
 
 
 # 用 load() 自引用避免编译期 class_name 未注册问题

@@ -231,6 +231,17 @@ func _应用神魂属性(神魂实例: Resource, 添加: bool) -> void:
 	属性变更.emit()
 
 
+func 卸下神魂() -> Resource:
+	if 当前神魂 == null:
+		return null
+	var 旧神魂: Resource = 当前神魂
+	_应用神魂属性(旧神魂, false)
+	当前神魂 = null
+	神魂变更.emit(null, 旧神魂)
+	print("[装备组件] %s 卸下神魂 %s" % [get_parent().name, 旧神魂.名称])
+	return 旧神魂
+
+
 func 获取当前神魂() -> Resource:
 	return 当前神魂
 
@@ -266,11 +277,16 @@ func 一键整理背包() -> void:
 func 序列化() -> Dictionary:
 	var 装备数据: Dictionary = {}
 	for 部位 in 当前装备.keys():
-		装备数据[str(部位)] = 当前装备[部位].系列化()
+		var 装备实例 = 当前装备[部位]
+		if 装备实例 != null and 装备实例.是否临时:
+			continue
+		装备数据[str(部位)] = 装备实例.系列化()
 
 	var 背包数据: Array = []
 	for 物品 in 背包:
-		if 物品 != null:
+		if 物品 != null and 物品.是否临时:
+			背包数据.append(null)
+		elif 物品 != null:
 			if 是神魂(物品):
 				背包数据.append({"_type": "soul", "data": 物品.系列化()})
 			else:
@@ -279,7 +295,7 @@ func 序列化() -> Dictionary:
 			背包数据.append(null)
 
 	var 神魂数据 = null
-	if 当前神魂 != null:
+	if 当前神魂 != null and not 当前神魂.是否临时:
 		神魂数据 = 当前神魂.系列化()
 
 	return {"当前装备": 装备数据, "背包": 背包数据, "当前神魂": 神魂数据}

@@ -3,6 +3,7 @@ class_name 技能管理器
 
 var 装备组件节点: Node = null
 var 神魂组件节点: Node = null
+var 技能池数据: Dictionary = {}
 
 var 当前普攻技能: Dictionary = {}
 var 当前大招技能: Dictionary = {}
@@ -10,6 +11,9 @@ var 当前被动列表: Array[Dictionary] = []
 
 
 func _ready() -> void:
+  var Jsonc工具 = load("res://公共/jsonc工具.gd")
+  技能池数据 = Jsonc工具.解析文件("res://设计/数据/技能池.jsonc")
+
   var 父节点 := get_parent()
   装备组件节点 = 父节点.get_node_or_null("装备组件")
   神魂组件节点 = 父节点.get_node_or_null("神魂组件")
@@ -54,34 +58,22 @@ func _刷新技能() -> void:
 
 
 func _获取技能配置(技能ID: String) -> Dictionary:
-  match 技能ID:
-    # 普攻
-    "爪击": return {"id": "爪击", "倍率": 1.0, "特效": ""}
-    "狐火": return {"id": "狐火", "倍率": 1.1, "特效": ""}
-    "猛击": return {"id": "猛击", "倍率": 1.3, "特效": ""}
-    "碎石掌": return {"id": "碎石掌", "倍率": 1.2, "特效": ""}
-    "裂地斩": return {"id": "裂地斩", "倍率": 1.6, "特效": "击退"}
-    "毒牙刺": return {"id": "毒牙刺", "倍率": 1.4, "特效": "中毒"}
-    "灭魂爪": return {"id": "灭魂爪", "倍率": 1.8, "特效": ""}
-    "魔剑": return {"id": "魔剑", "倍率": 1.7, "特效": ""}
-    "天妖灭世": return {"id": "天妖灭世", "倍率": 2.2, "特效": ""}
-    "道剑": return {"id": "道剑", "倍率": 1.1, "特效": ""}
-    "剑气": return {"id": "剑气", "倍率": 1.15, "特效": ""}
-    "符箓": return {"id": "符箓", "倍率": 1.05, "特效": "减速"}
-    # 大招
-    "妖气爆发": return {"id": "妖气爆发", "倍率": 2.5, "冷却": 8.0, "特效": "范围"}
-    "幻影迷踪": return {"id": "幻影迷踪", "倍率": 2.0, "冷却": 7.0, "特效": "闪避"}
-    "妖力灌注": return {"id": "妖力灌注", "倍率": 2.2, "冷却": 8.0, "特效": "增益"}
-    "山崩": return {"id": "山崩", "倍率": 2.8, "冷却": 10.0, "特效": "眩晕"}
-    "万妖噬心": return {"id": "万妖噬心", "倍率": 3.0, "冷却": 12.0, "特效": "dot"}
-    "蛇影万重": return {"id": "蛇影万重", "倍率": 2.5, "冷却": 9.0, "特效": "多段"}
-    "妖域降临": return {"id": "妖域降临", "倍率": 3.5, "冷却": 15.0, "特效": "范围减速"}
-    "万魔噬天": return {"id": "万魔噬天", "倍率": 3.2, "冷却": 14.0, "特效": "吸血"}
-    "妖神降世": return {"id": "妖神降世", "倍率": 4.0, "冷却": 20.0, "特效": "全屏"}
-    "天人合一": return {"id": "天人合一", "倍率": 2.5, "冷却": 10.0, "特效": "护盾"}
-    "万剑归宗": return {"id": "万剑归宗", "倍率": 3.0, "冷却": 12.0, "特效": "多段"}
-    "天雷符阵": return {"id": "天雷符阵", "倍率": 2.8, "冷却": 11.0, "特效": "范围"}
-    _: return {"id": 技能ID, "倍率": 1.0, "特效": ""}
+  if 技能池数据.is_empty():
+    return {"id": 技能ID, "倍率": 1.0, "特效": ""}
+
+  var Jsonc工具 = load("res://公共/jsonc工具.gd")
+  var 行 := Jsonc工具.查找行(技能池数据, "skill_id", 技能ID)
+  if 行.is_empty():
+    return {"id": 技能ID, "倍率": 1.0, "特效": ""}
+
+  var 结果 := {
+    "id": 行.get("skill_id", 技能ID),
+    "倍率": 行.get("multiplier", 1.0),
+    "特效": 行.get("effect", "")
+  }
+  if 行.get("category", "") == "大招":
+    结果["冷却"] = 行.get("cooldown", 0.0)
+  return 结果
 
 
 func 计算普攻伤害(基础劲力: int) -> int:
@@ -110,3 +102,42 @@ func 获取普攻技能ID() -> String:
 
 func 获取大招技能ID() -> String:
   return 当前大招技能.get("id", "")
+
+
+func 获取技能列表_by_category(分类: String) -> Array[Dictionary]:
+  var 列表: Array[Dictionary] = []
+  var 列数组: Array = 技能池数据.get("columns", [])
+  var 表格: Array = 技能池数据.get("table", [])
+  if 列数组.is_empty() or 表格.is_empty():
+    return 列表
+
+  var 列索引 := -1
+  for i in range(列数组.size()):
+    if 列数组[i].get("name", "") == "category":
+      列索引 = i
+      break
+  if 列索引 < 0:
+    return 列表
+
+  for 行 in 表格:
+    if 行 is Array and 行.size() > 列索引 and 行[列索引] == 分类:
+      var 行字典 := {}
+      for j in range(min(列数组.size(), 行.size())):
+        行字典[列数组[j].get("name", "")] = 行[j]
+      列表.append(行字典)
+  return 列表
+
+
+func 获取法术配置(技能ID: String) -> Dictionary:
+  var Jsonc工具 = load("res://公共/jsonc工具.gd")
+  var 行 := Jsonc工具.查找行(技能池数据, "skill_id", 技能ID)
+  if 行.is_empty() or 行.get("category", "") != "法术":
+    return {}
+
+  return {
+    "id": 行.get("skill_id", ""),
+    "倍率": 行.get("multiplier", 0.0),
+    "特效": 行.get("effect", ""),
+    "灵气消耗": 行.get("mana_cost", 0),
+    "施法距离": 行.get("cast_range", 0.0)
+  }

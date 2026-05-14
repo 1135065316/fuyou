@@ -133,6 +133,7 @@ func _on_初始神魂选择完成(选中神魂: Resource, 面板: Control) -> vo
 func _完成游戏启动() -> void:
   _放置主角到房间中心()
   _初始化快捷道具栏()
+  _初始化状态效果()
   _生成走廊和触发器(当前房间节点)
   _尝试开启当前房间门()
   _更新相机边界()
@@ -140,6 +141,12 @@ func _完成游戏启动() -> void:
   _更新房间信息()
   _隐藏结束面板()
   _切换状态(游戏状态.探索中)
+
+  if 主角实例.has_node("属性"):
+    var 属性节点 = 主角实例.get_node("属性")
+    if not 属性节点.死亡信号.is_connected(_on_主角死亡):
+      属性节点.死亡信号.connect(_on_主角死亡)
+
   print("[游戏管理器] 第%d层已启动，共%d个房间" % [当前层数, 当前楼层图.size()])
 
   if 小地图节点 and 小地图节点.has_method("设置楼层图"):
@@ -185,6 +192,7 @@ func _on_进入大厅(body: Node3D) -> void:
     return
   if 当前状态 != 游戏状态.探索中:
     return
+  _清理临时物品()
   var 全局状态节点 = get_node_or_null("/root/全局状态")
   if 全局状态节点 and 全局状态节点.has_method("保存到大厅"):
     全局状态节点.保存到大厅(主角实例)
@@ -203,6 +211,22 @@ func _初始化快捷道具栏() -> void:
       var 装备节点 = 主角实例.get_node_or_null("装备组件")
       if 装备节点:
         快捷栏.设置装备组件(装备节点)
+
+
+func _初始化状态效果() -> void:
+  if 主角实例 == null:
+    return
+  var 状态效果节点 = 主角实例.get_node_or_null("状态效果")
+  if 状态效果节点 == null:
+    状态效果节点 = load("res://通用/角色/状态效果.gd").new()
+    状态效果节点.name = "状态效果"
+    主角实例.add_child(状态效果节点)
+
+  var ui层 = get_tree().current_scene.get_node_or_null("UI")
+  if ui层:
+    var 快捷栏 = ui层.get_node_or_null("快捷道具栏")
+    if 快捷栏 and 快捷栏.has_method("设置状态效果组件"):
+      快捷栏.设置状态效果组件(状态效果节点)
 
 
 func _生成走廊和触发器(节点) -> void:
@@ -461,6 +485,123 @@ func _on_敌人死亡() -> void:
 func _on_主角死亡() -> void:
   _切换状态(游戏状态.失败)
   _显示结束面板("道友陨落")
+
+  var 属性节点 = 主角实例.get_node("属性")
+  属性节点.降级()
+
+  var 所有物品: Array = []
+  var 装备节点 = 主角实例.get_node_or_null("装备组件")
+  var 已装备部位: Array = []
+  if 装备节点:
+    for 部位 in 装备节点.当前装备.keys():
+      var 装备实例 = 装备节点.当前装备[部位]
+      if 装备实例 != null:
+        所有物品.append(装备实例)
+        已装备部位.append(部位)
+    for 物品 in 装备节点.背包:
+      if 物品 != null:
+        所有物品.append(物品)
+    if 装备节点.当前神魂 != null:
+      所有物品.append(装备节点.当前神魂)
+
+    装备节点.当前装备.clear()
+    for i in range(装备节点.背包.size()):
+      装备节点.背包[i] = null
+    装备节点.当前神魂 = null
+    装备节点.背包变更.emit()
+    for 部位 in 已装备部位:
+      装备节点.装备变更.emit(部位, null, null)
+    装备节点.神魂变更.emit(null, null)
+
+  var 起点 = 主角实例.global_position
+  for 物品 in 所有物品:
+    _喷发掉落物(物品, 起点, get_parent())
+
+  await get_tree().create_timer(2.0).timeout
+
+  if 当前状态 != 游戏状态.失败:
+    return
+
+  主角实例.visible = true
+  主角实例.set_physics_process(true)
+  属性节点.已死亡 = false
+
+  当前房间节点 = 当前楼层图[0]
+  var 房间世界位置 := Vector3(当前房间节点.位置.x * 房间间距, 0, 当前房间节点.位置.y * 房间间距)
+  房间管理器节点.加载房间(当前房间节点.模板ID, 当前房间节点.连接门, 房间世界位置)
+
+  _放置主角到房间中心()
+  _生成走廊和触发器(当前房间节点)
+  _尝试开启当前房间门()
+  _更新相机边界()
+  _更新房间信息()
+
+  if 小地图节点 and 小地图节点.has_method("设置当前房间"):
+    小地图节点.设置当前房间(当前房间节点)
+
+  if 装备节点 and 装备节点.当前神魂 == null:
+    _弹出神魂选择_保留主角()
+  else:
+    _切换状态(游戏状态.探索中)
+    _隐藏结束面板()
+
+
+func _喷发掉落物(物品实例: Resource, 起点: Vector3, 父节点: Node) -> Node3D:
+  var 掉落 = 掉落物生成器.生成掉落物(物品实例, 起点, 父节点)
+  if 掉落 == null: return null
+  掉落.position = 起点
+
+  var 角度 = randf() * TAU
+  var 距离 = randf_range(2.0, 5.0)
+  var 终点 = 起点 + Vector3(cos(角度) * 距离, 0, sin(角度) * 距离)
+  var 最高点 = (起点 + 终点) / 2.0 + Vector3(0, 3.0, 0)
+
+  var tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+  tween.tween_property(掉落, "position", 最高点, 0.4)
+  tween.chain().tween_property(掉落, "position", 终点, 0.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+  return 掉落
+
+
+func _弹出神魂选择_保留主角() -> void:
+  var 面板 = load("res://UI/神魂选择面板.gd").new()
+  var ui层 = get_tree().current_scene.get_node_or_null("UI")
+  if ui层:
+    ui层.add_child(面板)
+    面板.选择完成.connect(_on_神魂选择完成_保留主角.bind(面板))
+    面板.显示三选一()
+
+
+func _on_神魂选择完成_保留主角(选中神魂: Resource, 面板: Control) -> void:
+  面板.queue_free()
+  if 选中神魂 and 主角实例:
+    var 装备节点 = 主角实例.get_node_or_null("装备组件")
+    if 装备节点:
+      装备节点.装备神魂(选中神魂)
+  _切换状态(游戏状态.探索中)
+  _隐藏结束面板()
+
+
+func _清理临时物品() -> void:
+  var 装备节点 = 主角实例.get_node_or_null("装备组件")
+  if 装备节点 == null: return
+
+  var 待卸下部位: Array = []
+  for 部位 in 装备节点.当前装备.keys():
+    var 装备实例 = 装备节点.当前装备[部位]
+    if 装备实例 != null and 装备实例.是否临时:
+      待卸下部位.append(部位)
+  for 部位 in 待卸下部位:
+    装备节点.卸下(部位)
+
+  for i in range(装备节点.背包.size()):
+    var 物品 = 装备节点.背包[i]
+    if 物品 != null and 物品.是否临时:
+      装备节点.背包[i] = null
+
+  if 装备节点.当前神魂 != null and 装备节点.当前神魂.是否临时:
+    装备节点.卸下神魂()
+
+  装备节点.背包变更.emit()
 
 
 func _on_重新开始() -> void:
